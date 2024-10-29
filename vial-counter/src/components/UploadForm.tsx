@@ -1,3 +1,5 @@
+// src/components/UploadForm.tsx
+
 import { useState } from 'react';
 import axios from 'axios';
 
@@ -13,7 +15,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+      const file = e.target.files[0];
+      setImage(file);
     }
   };
 
@@ -35,7 +38,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
 
     try {
       const formData = new FormData();
-      formData.append('image', image);
+      formData.append('image', image); // No renaming here
       formData.append('expectedCount', expectedCount.toString());
 
       const response = await axios.post('/api/process-image', formData, {
@@ -46,7 +49,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
 
       onResult(response.data);
     } catch (err: any) {
-      setError('An error occurred while processing the image.');
+      setError(err.response?.data?.error || 'An error occurred while processing the image.');
       console.error(err);
     } finally {
       setLoading(false);
