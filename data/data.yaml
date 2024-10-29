@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['vial']
+
+roboflow:
+  workspace: vial-counting-2b2ap
+  project: vial-counting-iwgjb
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/vial-counting-2b2ap/vial-counting-iwgjb/dataset/1
