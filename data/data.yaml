@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['vial']
+
+roboflow:
+  workspace: vial-counting-8moeq
+  project: vial-counting-xthkt
+  version: 2
+  license: Public Domain
+  url: https://universe.roboflow.com/vial-counting-8moeq/vial-counting-xthkt/dataset/2
