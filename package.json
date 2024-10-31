@@ -1,0 +1,41 @@
+{
+  "name": "vial-counter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.1.5",
+    "@supabase/supabase-js": "^2.46.1",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "axios": "^1.7.7",
+    "formidable": "^3.5.2",
+    "heroicons": "^2.1.5",
+    "inferencejs": "^1.0.15",
+    "mime-types": "^2.1.35",
+    "next": "15.0.1",
+    "react": "^18.2.0",
+    "react-compare-image": "^3.4.0",
+    "react-compare-slider": "^3.1.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.3.0",
+    "uuid": "^11.0.2"
+  },
+  "devDependencies": {
+    "@types/formidable": "^3.4.5",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5"
+  }
+}
