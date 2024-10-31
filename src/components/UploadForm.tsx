@@ -1,3 +1,5 @@
+// src/components/UploadForm.tsx
+
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -56,7 +58,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
       onResult(response.data);
     } catch (err: any) {
       setError(
-        err.response?.data?.error ??
+        err.response?.data?.error ||
           'An error occurred while processing the image.'
       );
       console.error(err);
@@ -67,75 +69,10 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
 
   return (
     <div className="relative">
-      {/* Cute Cat Animation */}
+      {/* Cute Cat Emoji Animation */}
       {!loading && (
-        <div className="absolute -top-6 -right-6 w-20 h-20 md:w-24 md:h-24 z-30">
-          <svg
-            className="w-full h-full animate-bounce-slow"
-            viewBox="0 0 64 64"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Body */}
-            <circle cx="32" cy="32" r="30" fill="#FFD700" />
-
-            {/* Ears */}
-            <path
-              d="M20 20 L24 12 L28 20 Z"
-              fill="#FFD700"
-              stroke="#000"
-              strokeWidth="2"
-            />
-            <path
-              d="M44 20 L48 12 L52 20 Z"
-              fill="#FFD700"
-              stroke="#000"
-              strokeWidth="2"
-            />
-
-            {/* Eyes */}
-            <circle cx="24" cy="28" r="4" fill="#000" />
-            <circle cx="40" cy="28" r="4" fill="#000" />
-
-            {/* Nose */}
-            <path
-              d="M32 34 Q30 36 32 38 Q34 36 32 34"
-              fill="#FF69B4"
-            />
-
-            {/* Mouth */}
-            <path
-              d="M30 38 Q32 40 34 38"
-              stroke="#000"
-              strokeWidth="2"
-              fill="none"
-            />
-
-            {/* Whiskers */}
-            <path
-              d="M24 35 H16"
-              stroke="#000"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-            <path
-              d="M24 38 H16"
-              stroke="#000"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-            <path
-              d="M40 35 H48"
-              stroke="#000"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-            <path
-              d="M40 38 H48"
-              stroke="#000"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
+        <div className="absolute -top-6 -right-6 text-4xl md:text-5xl animate-bounce-slow z-30">
+          🐱
         </div>
       )}
 
