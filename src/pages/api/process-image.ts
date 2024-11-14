@@ -6,6 +6,7 @@ import sharp from 'sharp';
 import { supabaseServer } from '../../lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
+import os from 'os';
 import type { Result } from '../../types';
 
 // Disable Next.js default body parsing
@@ -29,24 +30,20 @@ const uploadToSupabase = async (
   filePath: string,
   filename: string
 ): Promise<string> => {
-  console.log(`Uploading file to bucket "${bucket}" with filename "${filename}"`);
+  console.log(`Uploading to ${bucket}/${filename}`);
   const fileContent = fs.readFileSync(filePath);
-  const mimeType = mime.lookup(filePath) || 'application/octet-stream';
-
-  const { error: uploadError } = await supabaseServer.storage
+  const { data, error } = await supabaseServer.storage
     .from(bucket)
     .upload(filename, fileContent, {
-      contentType: mimeType,
-      upsert: true, // Overwrite if exists
+      contentType: mime.lookup(filePath) || 'application/octet-stream',
     });
 
-  if (uploadError) {
-    console.error(`Error uploading to Supabase Storage:`, uploadError);
-    throw uploadError;
+  if (error || !data) {
+    console.error('Supabase upload error:', error);
+    throw new Error('Upload failed');
   }
 
-  // Return the storage path (e.g., 'original-uuid.jpg')
-  return filename; // **Only the filename, not prefixed with bucket name**
+  return data.path;
 };
 
 /**
@@ -59,14 +56,14 @@ const uploadToSupabase = async (
 const generateSignedUrl = async (
   bucket: string,
   filePath: string,
-  expiresIn: number = 60 * 60
+  expiresIn: number = 3600
 ): Promise<string | null> => {
   const { data, error } = await supabaseServer.storage
     .from(bucket)
     .createSignedUrl(filePath, expiresIn);
 
   if (error || !data?.signedUrl) {
-    console.error(`Error generating signed URL for ${bucket}/${filePath}:`, error);
+    console.error(`Signed URL error for ${bucket}/${filePath}:`, error);
     return null;
   }
 
@@ -79,25 +76,22 @@ const generateSignedUrl = async (
  * @returns A promise resolving to the parsed fields and files.
  */
 const parseForm = async (req: NextApiRequest) => {
-  console.log('Parsing incoming form data');
-  const form = formidable({
-    multiples: false,
-    uploadDir: path.join(process.cwd(), 'tmp'),
-    keepExtensions: true,
-    maxFileSize: 10 * 1024 * 1024, // 10MB
-    filter: ({ mimetype }) => {
-      return mimetype ? mimetype.startsWith('image/') : false;
-    },
-  });
-
+  const uploadDir = os.tmpdir();
   return new Promise<{ fields: formidable.Fields; files: formidable.Files }>(
     (resolve, reject) => {
+      const form = formidable({
+        multiples: false,
+        uploadDir: uploadDir,
+        keepExtensions: true,
+        maxFileSize: 10 * 1024 * 1024, // 10MB
+        filter: ({ mimetype }) => ALLOWED_MIME_TYPES.includes(mimetype || ''),
+      });
+
       form.parse(req, (err, fields, files) => {
         if (err) {
-          console.error('Error parsing the form:', err);
+          console.error('Form parse error:', err);
           reject(err);
         } else {
-          console.log('Form data parsed successfully');
           resolve({ fields, files });
         }
       });
@@ -119,36 +113,14 @@ const processImage = async (
   percentage: string;
   processedFilePath: string;
 }> => {
-  console.log('Starting image processing');
-  try {
-    // Simulate processing time
-    console.log('Simulating processing time');
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Generate counted vials ±10% of expected count
-    console.log('Generating counted vials');
-    const countedVials = Math.floor(expectedCount * (0.9 + Math.random() * 0.2));
-    const percentage = ((countedVials / expectedCount) * 100).toFixed(2);
-
-    // Define processed image filename and path
-    const processedFilename = `processed-${uuidv4()}.jpg`;
-    const processedFilePath = path.join(process.cwd(), 'tmp', processedFilename);
-    console.log(`Processed file will be saved as "${processedFilePath}"`);
-
-    // Convert the image to grayscale using sharp
-    console.log('Converting image to grayscale');
-    await sharp(filePath).grayscale().toFile(processedFilePath);
-    console.log('Image converted to grayscale successfully');
-
-    return {
-      countedVials,
-      percentage,
-      processedFilePath,
-    };
-  } catch (error) {
-    console.error('Error processing the image:', error);
-    throw error;
-  }
+  console.log('Processing image...');
+  await new Promise((res) => setTimeout(res, 2000)); // Simulate processing
+  const countedVials = Math.floor(expectedCount * (0.9 + Math.random() * 0.2));
+  const percentage = ((countedVials / expectedCount) * 100).toFixed(2);
+  const processedFilename = `processed-${uuidv4()}.jpg`;
+  const processedFilePath = path.join(os.tmpdir(), processedFilename);
+  await sharp(filePath).grayscale().toFile(processedFilePath);
+  return { countedVials, percentage, processedFilePath };
 };
 
 export default async function handler(
