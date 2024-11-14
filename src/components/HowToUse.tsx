@@ -29,7 +29,7 @@ const HowToUse: React.FC = () => {
         {/* Start Uploading Button */}
         <div className="mt-8 flex justify-center">
           <Link href="/upload">
-            <a className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200">
+            <a className="px-6 py-3 bg-green-700 text-white rounded-md hover:bg-green-800 focus:bg-green-800 transition-colors duration-200">
               Start Uploading
             </a>
           </Link>

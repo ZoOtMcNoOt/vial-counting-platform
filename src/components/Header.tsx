@@ -59,28 +59,6 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
-        <nav className="md:hidden bg-red-600 dark:bg-gray-800 shadow-lg">
-          <ul className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navLinks.map((link) => (
-              <li key={link.name}>
-                <Link href={link.path}>
-                  <a
-                    className={`block px-3 py-2 rounded-md text-base font-medium text-white dark:text-gray-200 hover:text-yellow-300 dark:hover:text-yellow-400 hover:bg-red-700 dark:hover:bg-gray-700 transition-colors duration-300 ${
-                      router.pathname === link.path ? 'font-semibold text-yellow-300 dark:text-yellow-400' : ''
-                    }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.name}
-                  </a>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
     </header>
   );
 };
