@@ -1,5 +1,3 @@
-// src/pages/api/all-results.ts
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseServer } from '../../lib/supabaseClient';
 import type { Result } from '../../types';
