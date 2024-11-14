@@ -78,7 +78,7 @@ const ResultsList: React.FC<ResultsListProps> = () => {
 
               {/* Optional: Additional Actions */}
               <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                <button className="text-blue-600 dark:text-blue-400 hover:underline">
+                <button className="text-blue-700 dark:text-blue-300 hover:underline">
                   View Details
                 </button>
               </div>

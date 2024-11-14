@@ -32,7 +32,7 @@ const Header: React.FC = () => {
               className={`block text-white px-3 py-2 rounded-md text-base font-medium ${
                 router.pathname === link.path
                   ? 'underline'
-                  : 'hover:bg-red-500 hover:underline'
+                  : 'hover:bg-red-600 hover:underline' // Ensures underline maintains contrast
               }`}
             >
               {link.name}
