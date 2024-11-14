@@ -7,11 +7,11 @@ import Image from 'next/image';
 const TeamPage: React.FC = () => {
   const teamMembers = [
     { 
-        name: 'Grant McNatt',
-        url: 'https://www.linkedin.com/in/grant-mcnatt/',
-        role: 'Full Stack Developer',
-        imageUrl: '/images/team/grant-pfp.jpg'
-      },
+      name: 'Grant McNatt',
+      url: 'https://www.linkedin.com/in/grant-mcnatt/',
+      role: 'Full Stack Developer',
+      imageUrl: '/images/team/grant-pfp.jpg'
+    },
     { 
       name: 'Chance French',
       url: 'https://www.linkedin.com/in/chance-french/',
@@ -30,13 +30,12 @@ const TeamPage: React.FC = () => {
       role: 'Frontend Developer',
       imageUrl: '/images/team/harrison-pfp.jpg'
     },
-
     { 
-        name: 'Justin Liao',
-        url: 'https://www.linkedin.com/in/justinliao/',
-        role: 'UI/UX Designer',
-        imageUrl: '/images/team/justin-pfp.jpg'
-      },
+      name: 'Justin Liao',
+      url: 'https://www.linkedin.com/in/justinliao/',
+      role: 'UI/UX Designer',
+      imageUrl: '/images/team/justin-pfp.jpg'
+    },
   ];
 
   return (
@@ -46,9 +45,12 @@ const TeamPage: React.FC = () => {
         <meta name="description" content="Meet our team of developers" />
       </Head>
       <Header />
-      <main className="flex-grow flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold mb-8">Our Team</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl w-full">
+      <main className="flex-grow flex flex-col items-center py-24 px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-2">Our Team</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">Click To Connect!</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl w-full">
           {teamMembers.map((member) => (
             <a
               key={member.name}
