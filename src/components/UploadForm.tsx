@@ -83,66 +83,67 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
           Upload Tray Image
         </h2>
-        <div className="flex-grow flex flex-col justify-center space-y-4">
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">
-              Tray Image:
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className={`block w-full text-sm text-gray-500 dark:text-gray-400
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 dark:file:bg-gray-700 file:text-red-700 dark:file:text-red-400
-                hover:file:bg-blue-100 dark:hover:file:bg-gray-600
-                transition-all duration-200
-                focus:outline-none focus:ring-2 ${
-                  error && !image
-                    ? 'focus:ring-red-500 border-red-500'
-                    : 'focus:ring-blue-500 border-gray-300 dark:border-gray-600'
-                }`}
-            />
-          </div>
 
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">
-              Expected Vial Count:
-            </label>
-            <input
-              type="number"
-              value={expectedCount}
-              onChange={(e) => {
-                const value = e.target.value;
-                setExpectedCount(value ? parseInt(value) : '');
-              }}
-              className={`w-full px-4 py-2 border rounded-md
-                ${
-                  error && (!expectedCount || isNaN(expectedCount) || expectedCount <= 0)
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
-                }
-                bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                focus:outline-none transition-all duration-200`}
-              placeholder="Enter expected count"
-              min="1"
-              required
-            />
-          </div>
-
-          {error && (
-            <p className="text-red-500 dark:text-red-400 text-sm mt-2">{error}</p>
-          )}
+        <div>
+          <label htmlFor="trayImage" className="block text-gray-700 dark:text-gray-300 mb-2">
+            Tray Image:
+          </label>
+          <input
+            id="trayImage"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className={`block w-full text-sm text-gray-500 dark:text-gray-400
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-semibold
+              file:bg-blue-50 dark:file:bg-gray-700 file:text-red-700 dark:file:text-red-400
+              hover:file:bg-blue-100 dark:hover:file:bg-gray-600
+              transition-all duration-200
+              focus:outline-none focus:ring-2 ${
+                error && !image
+                  ? 'focus:ring-red-500 border-red-500'
+                  : 'focus:ring-blue-500 border-gray-300 dark:border-gray-600'
+              }`}
+          />
         </div>
+
+        <div>
+          <label htmlFor="expectedCount" className="block text-gray-700 dark:text-gray-300 mb-2">
+            Expected Vial Count:
+          </label>
+          <input
+            id="expectedCount"
+            type="number"
+            value={expectedCount}
+            onChange={(e) => {
+              const value = e.target.value;
+              setExpectedCount(value ? parseInt(value) : '');
+            }}
+            className={`w-full px-4 py-2 border rounded-md
+              ${
+                error && (!expectedCount || isNaN(expectedCount) || expectedCount <= 0)
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
+              }
+              bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+              focus:outline-none transition-all duration-200`}
+            placeholder="Enter expected count"
+            min="1"
+            required
+          />
+        </div>
+
+        {error && (
+          <p className="text-red-500 dark:text-red-400 text-sm mt-2">{error}</p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
           className="mt-6 w-full flex items-center justify-center px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-800
-                             focus:outline-none focus:ring-2 focus:ring-red-500
-                             transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative"
+                     focus:outline-none focus:ring-2 focus:ring-red-500
+                     transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative"
         >
           {loading ? (
             <>
