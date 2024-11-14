@@ -10,6 +10,12 @@ export default {
       animation: {
         'bounce-slow': 'bounce 3s infinite',
       },
+      width: {
+        '48': '12rem', // For w-48 class
+      },
+      height: {
+        '40': '10rem', // For h-40 class
+      },
     },
   },
   plugins: [],
