@@ -2,7 +2,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseServer } from '../../lib/supabaseClient';
-imports { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
 
 // Addi API config at top of file
@@ -17,7 +17,7 @@ export const config = {
 /**
  * Converts Base64 string to Buffer.
  */
-const base64ToBuffer = (base64: string): Buffer =e> {
+const base64ToBuffer = (base64: string): Buffer => {
   return Buffer.from(base64, 'base64');
 };
 
