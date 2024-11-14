@@ -1,13 +1,16 @@
 export const formatLocalDateTime = (utcTimestamp: string) => {
   try {
-    const date = new Date(utcTimestamp);
+    // Create date object and ensure UTC interpretation
+    const utcDate = new Date(utcTimestamp);
     
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
+    if (isNaN(utcDate.getTime())) {
       throw new Error('Invalid timestamp');
     }
 
-    return date.toLocaleString(undefined, {
+    // Get local timezone offset
+    const localDate = new Date(utcDate.toLocaleString('en-US', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }));
+
+    return localDate.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
