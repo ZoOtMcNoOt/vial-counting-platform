@@ -21,9 +21,10 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  // Define the accepted file types using the Accept type
+  // Define the accepted file types using the Accept type from react-dropzone
   const acceptedFileTypes: Accept = {
-    'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.bmp', '.tiff', '.webp'],
+    'image/jpeg': ['.jpg', '.jpeg'],
+    'image/png': ['.png'],
   };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -33,10 +34,18 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
     }
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragReject,
+    acceptedFiles,
+    fileRejections,
+  } = useDropzone({
     onDrop,
     accept: acceptedFileTypes, // Use the object instead of a string
     multiple: false,
+    maxFiles: 1,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,7 +120,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
             <p className="text-red-500">Unsupported file type...</p>
           ) : (
             <p className="text-gray-500 dark:text-gray-400">
-              Drag and drop here or click to select .jpg or .png files.
+              Drag and drop a .jpg or .png image here, or click to select one
             </p>
           )}
         </div>
