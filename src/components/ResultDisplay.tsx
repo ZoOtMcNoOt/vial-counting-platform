@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import ImageSlider from './ImageSlider';
 
 interface ResultDisplayProps {
   originalImageBase64: string;
   processedImageBase64: string;
   countedVials: number;
-  percentage: string;
+  percentage: number;
   className?: string;
   onClear: () => void;
 }
@@ -23,10 +22,15 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
   const [downloadError, setDownloadError] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  /**
+   * Handles the download of the processed image.
+   */
   const handleDownload = () => {
     try {
       const link = document.createElement('a');
-      link.href = `data:image/base64,${processedImageBase64}`;
+
+      // **Use the processedImageBase64 directly without adding the prefix again**
+      link.href = processedImageBase64;
       link.download = `processed-image-${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
@@ -37,6 +41,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
     }
   };
 
+  /**
+   * Handles the approval process by sending data to the backend.
+   */
   const handleApprove = async () => {
     setLoading(true);
     setError('');
@@ -45,23 +52,27 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
       const payload = {
         original_image_base64: originalImageBase64,
         processed_image_base64: processedImageBase64,
-        countedVials: countedVials,
-        percentage: parseFloat(percentage),
+        countedVials,
+        percentage,
       };
 
-      await axios.post('/api/save-result', payload, {
+      const response = await fetch('/api/save-result', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(payload),
       });
 
-      alert('Result approved and saved successfully!');
+      if (!response.ok) {
+        const resData = await response.json();
+        throw new Error(resData.error || 'Failed to save result');
+      }
+
       onClear();
     } catch (err: any) {
-      setError(
-        err.response?.data?.error || 'An error occurred while saving the result.'
-      );
-      console.error(err);
+      console.error('Approve error:', err.message);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -76,8 +87,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
       {/* Image Comparison Section */}
       <div className="mb-8 relative aspect-[4/3] w-full">
         <ImageSlider
-          beforeImage={originalImageBase64}
-          afterImage={processedImageBase64}
+          beforeImage={originalImageBase64} // **Use directly**
+          afterImage={processedImageBase64}   // **Use directly**
         />
       </div>
 
@@ -104,38 +115,38 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button
-            onClick={handleDownload}
-            className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex-1"
-          >
-            Download Processed Image
-          </button>
-          <button
-            onClick={handleApprove}
-            disabled={loading}
-            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 flex-1 disabled:opacity-50"
-          >
-            {loading ? 'Saving...' : 'Approve'}
-          </button>
-          <button
-            onClick={onClear}
-            className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex-1"
-          >
-            Clear Results
-          </button>
-        </div>
-
-        {/* Error Messages */}
-        {downloadError && (
-          <p className="text-red-500 text-center mt-4">Failed to download the image</p>
-        )}
-        {error && (
-          <p className="text-red-500 text-center mt-4">{error}</p>
-        )}
       </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-center gap-4">
+        <button
+          onClick={handleDownload}
+          className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex-1"
+        >
+          Download Processed Image
+        </button>
+        <button
+          onClick={handleApprove}
+          disabled={loading}
+          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 flex-1 disabled:opacity-50"
+        >
+          {loading ? 'Saving...' : 'Approve'}
+        </button>
+        <button
+          onClick={onClear}
+          className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex-1"
+        >
+          Clear Results
+        </button>
+      </div>
+
+      {/* Error Messages */}
+      {downloadError && (
+        <p className="text-red-500 mt-4">Failed to download the image.</p>
+      )}
+      {error && (
+        <p className="text-red-500 mt-4">{error}</p>
+      )}
     </div>
   );
 };
