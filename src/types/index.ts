@@ -1,5 +1,3 @@
-// src/types/index.ts
-
 export interface ProcessedImageResult {
   original_image_base64: string;
   processed_image_base64: string;
