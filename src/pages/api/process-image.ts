@@ -13,6 +13,9 @@ import heicConvert from 'heic-convert';
 export const config = {
   api: {
     bodyParser: false,
+    responseLimit: false,
+    // Increase size limit to 10MB
+    maxDuration: 10,
   },
 };
 
@@ -34,6 +37,7 @@ const parseForm = async (req: NextApiRequest) => {
         multiples: false,
         uploadDir: uploadDir,
         keepExtensions: true,
+        // Increase file size limit to 10MB
         maxFileSize: 10 * 1024 * 1024, // 10MB
         filter: ({ mimetype }) => ALLOWED_MIME_TYPES.includes(mimetype || ''),
       });
