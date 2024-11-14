@@ -18,6 +18,7 @@
     "@vercel/speed-insights": "^1.1.0",
     "axios": "^1.7.7",
     "formidable": "^3.5.2",
+    "heic-convert": "^2.1.0",
     "heroicons": "^2.1.5",
     "inferencejs": "^1.0.15",
     "mime-types": "^2.1.35",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@types/formidable": "^3.4.5",
+    "@types/heic-convert": "^2.1.0",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20",
     "@types/react": "^18",

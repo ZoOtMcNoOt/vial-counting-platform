@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
 import os from 'os';
 import type { Result } from '../../types';
+import heicConvert from 'heic-convert';
 
 // Disable Next.js default body parsing
 export const config = {
@@ -15,7 +16,15 @@ export const config = {
   },
 };
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png', 
+  'image/webp',
+  'image/gif',
+  'image/tiff',
+  'image/heic',
+  'image/heif'
+];
 
 const parseForm = async (req: NextApiRequest) => {
   const uploadDir = os.tmpdir();
@@ -41,24 +50,68 @@ const parseForm = async (req: NextApiRequest) => {
   );
 };
 
+// Add conversion function
+const convertToOptimalFormat = async (buffer: Buffer, mimeType: string): Promise<Buffer> => {
+  if (mimeType === 'image/heic' || mimeType === 'image/heif') {
+    // Convert Buffer to ArrayBuffer for heic-convert
+    const arrayBuffer = buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength
+    );
+    
+    const convertedBuffer = await heicConvert({
+      buffer: arrayBuffer,
+      format: 'JPEG',
+      quality: 0.8
+    });
+
+    return Buffer.from(convertedBuffer);
+  }
+
+  return await sharp(buffer)
+    .jpeg({
+      quality: 80,
+      mozjpeg: true
+    })
+    .toBuffer();
+};
+
 /**
  * Processes the uploaded image (e.g., converts to grayscale) and returns Base64.
  * @param filePath - The local file path of the image.
  * @param expectedCount - The expected number of vials.
+ * @param mimeType - The MIME type of the image.
  * @returns An object containing counted vials, percentage, and processed image Base64.
  */
 const processImage = async (
   filePath: string,
-  expectedCount: number
+  expectedCount: number,
+  mimeType: string
 ): Promise<{
   counted_vials: number;
   percentage: string;
   processedImageBase64: string;
+  originalImageBase64: string;
 }> => {
   console.log('Processing image...');
 
   // Read the file into a buffer
   const imageBuffer = await fs.readFile(filePath);
+
+  // Convert to optimal format first
+  const convertedBuffer = await convertToOptimalFormat(imageBuffer, mimeType);
+  const originalImageBase64 = convertedBuffer.toString('base64');
+
+  // Process the converted image
+  const processedImageBuffer = await sharp(convertedBuffer)
+    .grayscale()
+    .jpeg({
+      quality: 80,
+      mozjpeg: true
+    })
+    .toBuffer();
+
+  const processedImageBase64 = processedImageBuffer.toString('base64');
 
   // Simulate processing delay
   await new Promise((res) => setTimeout(res, 2000));
@@ -66,15 +119,12 @@ const processImage = async (
   const counted_vials = Math.floor(expectedCount * (0.9 + Math.random() * 0.2));
   const percentage = ((counted_vials / expectedCount) * 100).toFixed(2);
 
-  // Process the image from the buffer
-  const processedImageBuffer = await sharp(imageBuffer)
-    .grayscale()
-    .toBuffer();
-
-  const processedImageBase64 = processedImageBuffer.toString('base64');
-  console.log('Image processing completed.');
-
-  return { counted_vials, percentage, processedImageBase64 };
+  return {
+    counted_vials,
+    percentage,
+    processedImageBase64,
+    originalImageBase64
+  };
 };
 
 const retry = async (fn: () => Promise<void>, retries = 3, delayMs = 500) => {
@@ -174,14 +224,11 @@ export default async function handler(
     }
 
     // Process the image
-    const { counted_vials, percentage, processedImageBase64 } = await processImage(
+    const { counted_vials, percentage, processedImageBase64, originalImageBase64 } = await processImage(
       image.filepath,
-      expectedCount
+      expectedCount,
+      mimeType
     );
-
-    // Read original image as Base64 from buffer
-    const originalImageBuffer = await fs.readFile(image.filepath);
-    const originalImageBase64 = originalImageBuffer.toString('base64');
 
     // Delete the temporary file
     await deleteFile(image.filepath);
