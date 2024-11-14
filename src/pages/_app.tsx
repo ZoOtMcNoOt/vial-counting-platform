@@ -4,9 +4,11 @@ import { ThemeProvider } from '../context/ThemeContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
+    <html lang="en"> 
     <ThemeProvider>
       <Component {...pageProps} />
     </ThemeProvider>
+    </html>
   );
 }
 

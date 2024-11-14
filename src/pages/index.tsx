@@ -1,10 +1,10 @@
+import Head from 'next/head';
 import { useState } from 'react';
 import UploadForm from '../components/UploadForm';
 import ImageSlider from '../components/ImageSlider';
 import ResultDisplay from '../components/ResultDisplay';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-// import ResultsList from '../components/ResultsList'; // Remove or comment out
 
 const Home: React.FC = () => {
   const [result, setResult] = useState<{
@@ -21,7 +21,12 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-16"> {/* Added pt-16 for fixed header */}
+    <html lang="en"> 
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-16">
+      <Head>
+        <title>Home - Vial Counting Platform</title> {/* Added title */}
+        <meta name="description" content="Upload and process tray images to count vials." />
+      </Head>
       <Header />
       <main className="flex-grow flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 w-full">
         {result && (
@@ -47,12 +52,10 @@ const Home: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* Remove or comment out the following lines */}
-        {/* <ResultsList /> */}
       </main>
       <Footer />
     </div>
+    </html>
   );
 };
 
