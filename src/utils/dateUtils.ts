@@ -1,15 +1,16 @@
 export const formatLocalDateTime = (utcTimestamp: string) => {
   try {
-    // Create date object and ensure UTC interpretation
+    // Parse UTC timestamp
     const utcDate = new Date(utcTimestamp);
     
     if (isNaN(utcDate.getTime())) {
       throw new Error('Invalid timestamp');
     }
 
-    // Get local timezone offset
-    const localDate = new Date(utcDate.toLocaleString('en-US', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }));
+    // Convert UTC to local time by accounting for timezone offset
+    const localDate = new Date(utcDate.getTime() - (utcDate.getTimezoneOffset() * 60000));
 
+    // Format in local timezone
     return localDate.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -19,6 +20,7 @@ export const formatLocalDateTime = (utcTimestamp: string) => {
       hour12: true,
       timeZoneName: 'short'
     });
+
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Invalid date';
