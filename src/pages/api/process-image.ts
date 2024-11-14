@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { supabaseServer } from '../../lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
 import os from 'os';
@@ -18,63 +17,6 @@ export const config = {
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
 
-/**
- * Uploads a file to a specified Supabase bucket.
- * @param bucket - The name of the storage bucket.
- * @param filePath - The local file path.
- * @param filename - The desired filename in Supabase.
- * @returns The storage path of the uploaded file.
- */
-const uploadToSupabase = async (
-  bucket: string,
-  filePath: string,
-  filename: string
-): Promise<string> => {
-  console.log(`Uploading to ${bucket}/${filename}`);
-  const fileContent = fs.readFileSync(filePath);
-  const { data, error } = await supabaseServer.storage
-    .from(bucket)
-    .upload(filename, fileContent, {
-      contentType: mime.lookup(filePath) || 'application/octet-stream',
-    });
-
-  if (error || !data) {
-    console.error('Supabase upload error:', error);
-    throw new Error('Upload failed');
-  }
-
-  return data.path;
-};
-
-/**
- * Generates a signed URL for a given bucket and file path.
- * @param bucket - The name of the storage bucket.
- * @param filePath - The path to the file within the bucket (relative path).
- * @param expiresIn - URL validity duration in seconds (default is 1 hour).
- * @returns A signed URL string or null if generation fails.
- */
-const generateSignedUrl = async (
-  bucket: string,
-  filePath: string,
-  expiresIn: number = 3600
-): Promise<string | null> => {
-  const { data, error } = await supabaseServer.storage
-    .from(bucket)
-    .createSignedUrl(filePath, expiresIn);
-
-  if (error || !data?.signedUrl) {
-    console.error(`Signed URL error for ${bucket}/${filePath}:`, error);
-    return null;
-  }
-
-  return data.signedUrl;
-};
-
-/**
- * Parses incoming form data using formidable.
- * @param req - The incoming Next.js API request.
- * @returns A promise resolving to the parsed fields and files.
- */
 const parseForm = async (req: NextApiRequest) => {
   const uploadDir = os.tmpdir();
   return new Promise<{ fields: formidable.Fields; files: formidable.Files }>(
@@ -100,28 +42,68 @@ const parseForm = async (req: NextApiRequest) => {
 };
 
 /**
- * Processes the uploaded image (e.g., converts to grayscale).
+ * Processes the uploaded image (e.g., converts to grayscale) and returns Base64.
  * @param filePath - The local file path of the image.
  * @param expectedCount - The expected number of vials.
- * @returns An object containing counted vials, percentage, and processed file path.
+ * @returns An object containing counted vials, percentage, and processed image Base64.
  */
 const processImage = async (
   filePath: string,
   expectedCount: number
 ): Promise<{
-  countedVials: number;
+  counted_vials: number;
   percentage: string;
-  processedFilePath: string;
+  processedImageBase64: string;
 }> => {
   console.log('Processing image...');
-  await new Promise((res) => setTimeout(res, 2000)); // Simulate processing
-  const countedVials = Math.floor(expectedCount * (0.9 + Math.random() * 0.2));
-  const percentage = ((countedVials / expectedCount) * 100).toFixed(2);
-  const processedFilename = `processed-${uuidv4()}.jpg`;
-  const processedFilePath = path.join(os.tmpdir(), processedFilename);
-  await sharp(filePath).grayscale().toFile(processedFilePath);
-  return { countedVials, percentage, processedFilePath };
+
+  // Read the file into a buffer
+  const imageBuffer = await fs.readFile(filePath);
+
+  // Simulate processing delay
+  await new Promise((res) => setTimeout(res, 2000));
+
+  const counted_vials = Math.floor(expectedCount * (0.9 + Math.random() * 0.2));
+  const percentage = ((counted_vials / expectedCount) * 100).toFixed(2);
+
+  // Process the image from the buffer
+  const processedImageBuffer = await sharp(imageBuffer)
+    .grayscale()
+    .toBuffer();
+
+  const processedImageBase64 = processedImageBuffer.toString('base64');
+  console.log('Image processing completed.');
+
+  return { counted_vials, percentage, processedImageBase64 };
 };
+
+const retry = async (fn: () => Promise<void>, retries = 3, delayMs = 500) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await fn();
+      return;
+    } catch (error) {
+      if (attempt === retries) throw error;
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+};
+
+const deleteFile = async (filePath: string) => {
+  try {
+    await fs.unlink(filePath);
+    console.log(`Deleted temporary file: ${filePath}`);
+  } catch (error) {
+    console.error(`Error deleting file ${filePath}:`, error);
+  }
+};
+
+interface ProcessedResult {
+  processed_image_url: string;
+  counted_vials: number;
+  percentage: number;
+  // Add other relevant fields
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -174,7 +156,9 @@ export default async function handler(
     console.log(`Uploaded image file: ${image.originalFilename}`);
 
     // Ensure the image file exists
-    if (!fs.existsSync(image.filepath)) {
+    try {
+      await fs.access(image.filepath);
+    } catch {
       console.error('Uploaded image does not exist');
       return res.status(400).json({ error: 'Uploaded image does not exist' });
     }
@@ -189,80 +173,28 @@ export default async function handler(
       return res.status(400).json({ error: 'Only JPEG and PNG images are allowed.' });
     }
 
-    // Upload original image to Supabase Storage
-    const originalFilename = `original-${uuidv4()}.jpg`;
-    console.log('Uploading original image to Supabase');
-    const originalImageFilename = await uploadToSupabase(
-      'before-images',
-      image.filepath,
-      originalFilename
-    );
-    console.log(`Original image uploaded as ${originalImageFilename}`);
-
-    // Process the image (convert to grayscale)
-    console.log('Processing the image');
-    const { countedVials, percentage, processedFilePath } = await processImage(
+    // Process the image
+    const { counted_vials, percentage, processedImageBase64 } = await processImage(
       image.filepath,
       expectedCount
     );
 
-    // Upload processed image to Supabase Storage
-    const processedFilename = `processed-${uuidv4()}.jpg`;
-    console.log('Uploading processed image to Supabase');
-    const processedImageFilename = await uploadToSupabase(
-      'after-images',
-      processedFilePath,
-      processedFilename
-    );
-    console.log(`Processed image uploaded as ${processedImageFilename}`);
+    // Read original image as Base64 from buffer
+    const originalImageBuffer = await fs.readFile(image.filepath);
+    const originalImageBase64 = originalImageBuffer.toString('base64');
 
-    // Save the result to Supabase Database
-    console.log('Inserting result into Supabase Database');
-    const { data, error: insertError } = await supabaseServer.from('results').insert([
-      {
-        original_image_url: originalImageFilename, // Storing only the filename
-        processed_image_url: processedImageFilename, // Storing only the filename
-        counted_vials: countedVials,
-        percentage: parseFloat(percentage),
-      },
-    ]).select();
+    // Delete the temporary file
+    await deleteFile(image.filepath);
+    console.log('Temporary files cleaned up.');
 
-    if (insertError) {
-      console.error('Error inserting into Supabase:', insertError);
-      return res.status(500).json({ error: 'Error saving results to the database.', details: insertError.message });
-    }
-
-    if (!data || data.length === 0) {
-      console.error('Failed to retrieve inserted data.');
-      return res.status(500).json({ error: 'Failed to retrieve inserted data.' });
-    }
-
-    // Type assertion to help TypeScript understand the type
-    const insertedResult = data[0] as Result;
-    console.log('Result inserted successfully:', insertedResult);
-
-    // Generate signed URLs
-    // **Important:** Pass only the filename (relative path within the bucket) to generateSignedUrl
-    const signedOriginalUrl = await generateSignedUrl('before-images', insertedResult.original_image_url);
-    const signedProcessedUrl = await generateSignedUrl('after-images', insertedResult.processed_image_url);
-
-    // Clean up temporary files asynchronously
-    fs.unlink(image.filepath, (err) => {
-      if (err) console.error('Error deleting original file:', err);
-      else console.log('Original temporary file deleted');
-    });
-
-    fs.unlink(processedFilePath, (err) => {
-      if (err) console.error('Error deleting processed file:', err);
-      else console.log('Processed temporary file deleted');
-    });
-
-    // Return the result with signed URLs
+    // Return the processed results to the frontend for approval
     res.status(200).json({
-      ...insertedResult,
-      original_image_url: signedOriginalUrl || insertedResult.original_image_url,
-      processed_image_url: signedProcessedUrl || insertedResult.processed_image_url,
+      original_image_base64: originalImageBase64,
+      processed_image_base64: processedImageBase64,
+      counted_vials,
+      percentage: parseFloat(percentage),
     });
+
   } catch (error: any) {
     console.error('Error in API handler:', error.message || error);
     console.error('Stack Trace:', error.stack);

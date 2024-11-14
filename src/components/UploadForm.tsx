@@ -1,53 +1,36 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useDropzone, Accept } from 'react-dropzone';
-
-interface ResultData {
-  id: number;
-  original_image_url: string;
-  processed_image_url: string;
-  counted_vials: number;
-  percentage: number;
-  created_at: string;
-}
+import type { Result, ProcessedImageResult } from '../types';
 
 interface UploadFormProps {
-  onResult: (data: ResultData) => void;
+  onResult: (data: Result) => void;
 }
 
 const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const [image, setImage] = useState<File | null>(null);
-  const [expectedCount, setExpectedCount] = useState<number | ''>('');
+  const [expectedCount, setExpectedCount] = useState<string>('');
+  const [processedResult, setProcessedResult] = useState<ProcessedImageResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  // Define the accepted file types using the Accept type from react-dropzone
-  const acceptedFileTypes: Accept = {
-    'image/jpeg': ['.jpg', '.jpeg'],
-    'image/png': ['.png'],
-  };
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       setImage(acceptedFiles[0]);
       setError('');
     }
-  }, []);
+  };
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragReject,
-    acceptedFiles,
-    fileRejections,
-  } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: acceptedFileTypes, // Use the object instead of a string
+    accept: {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+    } as Accept,
     multiple: false,
-    maxFiles: 1,
   });
 
+  // Function to handle the form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -56,7 +39,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
       return;
     }
 
-    if (!expectedCount || isNaN(expectedCount) || expectedCount <= 0) {
+    if (!expectedCount || isNaN(Number(expectedCount)) || Number(expectedCount) <= 0) {
       setError('Please enter a valid expected count.');
       return;
     }
@@ -67,25 +50,71 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
     try {
       const formData = new FormData();
       formData.append('image', image);
-      formData.append('expectedCount', expectedCount.toString());
+      formData.append('expectedCount', expectedCount);
 
-      const response = await axios.post<ResultData>('/api/process-image', formData, {
+      const response = await axios.post<ProcessedImageResult>('/api/process-image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      onResult(response.data);
+      // Set the processed result to display to the user
+      setProcessedResult(response.data);
     } catch (err: any) {
+      // Handle errors
       setError(
-        err.response?.data?.error ||
-          'An error occurred while processing the image.'
+        err.response?.data?.error || 'An error occurred while processing the image.'
       );
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Function to handle approval
+  const handleApprove = async () => {
+    if (!processedResult) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const payload = {
+        original_image_base64: processedResult.original_image_base64,
+        processed_image_base64: processedResult.processed_image_base64,
+        countedVials: processedResult.counted_vials, // Changed to countedVials
+        percentage: parseFloat(processedResult.percentage),
+      };
+
+      const response = await axios.post<Result>('/api/save-result', payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      alert('Result approved and saved successfully!');
+      setProcessedResult(null);
+      setImage(null);
+      setExpectedCount('');
+      onResult(response.data);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error || 'An error occurred while saving the result.'
+      );
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClear = () => {
+    setProcessedResult(null);
+    setImage(null);
+    setExpectedCount('');
+    setError('');
+  };
+
+  console.log('Processed Result:', processedResult);
 
   return (
     <div className="flex justify-center w-full">
@@ -97,109 +126,71 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           Upload Tray Image
         </h2>
 
-        {/* Dropzone */}
+        {/* Drag and Drop Area */}
         <div
           {...getRootProps()}
-          className={`w-full mb-4 p-6 border-2 border-dashed rounded-md cursor-pointer
-            ${
-              isDragActive
-                ? 'border-blue-400 bg-blue-50'
-                : 'border-gray-300 dark:border-gray-600'
-            }
-            ${
-              isDragReject
-                ? 'border-red-400 bg-red-50'
-                : ''
-            }
-            transition-all duration-200`}
+          className={`w-full p-4 border-2 border-dashed rounded-md cursor-pointer mb-4 ${
+            isDragActive ? 'border-blue-500' : 'border-gray-300'
+          }`}
         >
           <input {...getInputProps()} />
           {isDragActive ? (
             <p className="text-blue-500">Drop the image here...</p>
-          ) : isDragReject ? (
-            <p className="text-red-500">Unsupported file type...</p>
           ) : (
-            <p className="text-gray-500 dark:text-gray-400">
-              Drag and drop a .jpg or .png image here, or click to select one
-            </p>
+            <p>Drag & drop an image here, or click to select one</p>
           )}
         </div>
 
-        {/* Display Selected File Name */}
+        {/* Display Selected File */}
         {image && (
-          <div className="w-full mb-4 text-center">
-            <p className="text-gray-700 dark:text-gray-300">Selected File: {image.name}</p>
+          <div className="mb-4 text-center">
+            <p className="text-gray-700 dark:text-gray-300">Selected File:</p>
+            <p className="text-green-600 dark:text-green-400">{image.name}</p>
           </div>
         )}
 
-        {/* Expected Vial Count Input */}
-        <div className="w-full mb-4">
-          <label htmlFor="expectedCount" className="block text-gray-700 dark:text-gray-300 mb-2">
-            Expected Vial Count:
-          </label>
-          <input
-            id="expectedCount"
-            type="number"
-            value={expectedCount}
-            onChange={(e) => {
-              const value = e.target.value;
-              setExpectedCount(value ? parseInt(value) : '');
-            }}
-            className={`w-full px-4 py-2 border rounded-md
-              ${
-                error && (!expectedCount || isNaN(expectedCount) || expectedCount <= 0)
-                  ? 'border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
-              }
-              bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-              focus:outline-none transition-all duration-200`}
-            placeholder="Enter expected count"
-            min="1"
-            required
-          />
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <p className="text-red-500 dark:text-red-400 text-sm mt-2">{error}</p>
-        )}
+        {/* Expected Count Input */}
+        <input
+          type="number"
+          placeholder="Expected Vial Count"
+          value={expectedCount}
+          onChange={(e) => setExpectedCount(e.target.value)}
+          className="mb-4 p-2 border rounded w-full"
+        />
 
         {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full flex items-center justify-center px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-800
-                     focus:outline-none focus:ring-2 focus:ring-red-500
-                     transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? (
-            <>
-              <svg
-                className="animate-spin h-5 w-5 text-white mr-2"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                ></path>
-              </svg>
-              Processing...
-            </>
-          ) : (
-            'Submit'
-          )}
+          {loading ? 'Processing...' : 'Submit'}
         </button>
+
+        {/* Approve and Clear Buttons after Processing */}
+        {processedResult && (
+          <div className="flex space-x-4 mt-4">
+            <button
+              type="button"
+              onClick={handleApprove}
+              disabled={loading}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              onClick={handleClear}
+              disabled={loading}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && <p className="text-red-500 mt-4">{error}</p>}
       </form>
     </div>
   );
