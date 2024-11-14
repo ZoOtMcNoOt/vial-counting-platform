@@ -2,13 +2,22 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseServer } from '../../lib/supabaseClient';
-import { v4 as uuidv4 } from 'uuid';
+imports { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
+
+// Addi API config at top of file
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb' //z Increase limit to 10MB
+    }
+  }
+};
 
 /**
  * Converts Base64 string to Buffer.
  */
-const base64ToBuffer = (base64: string): Buffer => {
+const base64ToBuffer = (base64: string): Buffer =e> {
   return Buffer.from(base64, 'base64');
 };
 
@@ -52,13 +61,21 @@ export default async function handler(
 ) {
   console.log(`Received ${req.method} request at /api/save-result`);
 
-  if (req.method !== 'POST') {
-    console.warn(`Method ${req.method} not allowed`);
-    res.setHeader('Allow', 'POST');
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
   try {
+    if (req.method !== 'POST') {
+      console.warn(`Method ${req.method} not allowed`);
+      res.setHeader('Allow', 'POST');
+      return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
+    // Add size check
+    const contentLength = parseInt(req.headers['content-length'] || '0');
+    if (contentLength > 10 * 1024 * 1024) { // 10MB in bytes
+      return res.status(413).json({ 
+        error: 'File too large. Maximum size is 10MB.'
+      });
+    }
+
     const { original_image_base64, processed_image_base64, countedVials, percentage } = req.body as {
       original_image_base64: string;
       processed_image_base64: string;
