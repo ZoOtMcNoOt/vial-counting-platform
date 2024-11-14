@@ -119,7 +119,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
             value={expectedCount}
             onChange={(e) => setExpectedCount(e.target.value)}
             className="p-2 border rounded w-full 
-                       text-gray-700 dark:text-gray-300 
+                       text-gray-700 dark:text-white
                        placeholder-gray-500 dark:placeholder-gray-400 
                        bg-white dark:bg-gray-700 
                        border-gray-300 dark:border-gray-600 
