@@ -83,20 +83,23 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           Upload Tray Image
         </h2>
 
-        {/* Drag and Drop Area */}
-        <div
-          {...getRootProps()}
-          className={`w-full p-4 border-2 border-dashed rounded-md cursor-pointer mb-4 ${
-            isDragActive ? 'border-blue-500' : 'border-gray-300'
-          }`}
-        >
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p className="text-blue-500">Drop the image here...</p>
-          ) : (
-            <p>Drag & drop an image here, or click to select one</p>
-          )}
-        </div>
+        {/* File Input Label */}
+        <label htmlFor="file-upload" className="w-full">
+          {/* Drag and Drop Area */}
+          <div
+            {...getRootProps()}
+            className={`w-full p-4 border-2 border-dashed rounded-md cursor-pointer mb-4 ${
+              isDragActive ? 'border-blue-500' : 'border-gray-300'
+            }`}
+          >
+            <input {...getInputProps()} id="file-upload" />
+            {isDragActive ? (
+              <p className="text-blue-500">Drop the image here...</p>
+            ) : (
+              <p>Drag & drop an image here, or click to select one</p>
+            )}
+          </div>
+        </label>
 
         {/* Display Selected File */}
         {image && (
@@ -107,13 +110,18 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
         )}
 
         {/* Expected Count Input */}
-        <input
-          type="number"
-          placeholder="Expected Vial Count"
-          value={expectedCount}
-          onChange={(e) => setExpectedCount(e.target.value)}
-          className="mb-4 p-2 border rounded w-full"
-        />
+        <label htmlFor="expected-count" className="w-full">
+          <span className="sr-only">Expected Vial Count</span>
+          <input
+            type="number"
+            id="expected-count"
+            placeholder="Expected Vial Count"
+            value={expectedCount}
+            onChange={(e) => setExpectedCount(e.target.value)}
+            className="mb-4 p-2 border rounded w-full text-gray-700 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
+            aria-required="true"
+          />
+        </label>
 
         {/* Button Container */}
         <div className="flex flex-row gap-4 w-full">
