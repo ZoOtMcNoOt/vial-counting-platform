@@ -243,7 +243,7 @@ export default async function handler(
     }
 
     // Process the image
-    const { counted_vials, percentage, processedImageBase64 } = await processImage(
+    const { counted_vials, percentage, originalImageBase64, processedImageBase64 } = await processImage(
       image.filepath,
       expectedCount,
       mimeType
@@ -253,9 +253,10 @@ export default async function handler(
     await deleteFile(image.filepath);
     console.log('Temporary files cleaned up.');
 
-    // Return the processed results to the frontend for approval
+    // Return both images and results
     res.status(200).json({
-      processed_image_base64: processedImageBase64,
+      original_image_base64: originalImageBase64, // Include the optimized JPEG
+      processed_image_base64: processedImageBase64, // Include Roboflow result
       counted_vials,
       percentage: parseFloat(percentage),
     });
@@ -263,6 +264,9 @@ export default async function handler(
   } catch (error: any) {
     console.error('Error in API handler:', error.message || error);
     console.error('Stack Trace:', error.stack);
-    res.status(500).json({ error: 'An error occurred while processing the image.', details: error.message || 'Unknown error' });
+    res.status(500).json({ 
+      error: 'An error occurred while processing the image.', 
+      details: error.message || 'Unknown error' 
+    });
   }
 }
