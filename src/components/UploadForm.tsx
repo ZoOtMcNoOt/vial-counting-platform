@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useDropzone, Accept } from 'react-dropzone';
-import type { Result, ProcessedImageResult } from '../types';
 
 interface UploadFormProps {
-  onResult: (data: Result) => void;
+  onResult: (result: any) => void;
 }
 
 const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const [image, setImage] = useState<File | null>(null);
   const [expectedCount, setExpectedCount] = useState<string>('');
-  const [processedResult, setProcessedResult] = useState<ProcessedImageResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -30,7 +28,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
     multiple: false,
   });
 
-  // Function to handle the form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -52,16 +49,14 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
       formData.append('image', image);
       formData.append('expectedCount', expectedCount);
 
-      const response = await axios.post<ProcessedImageResult>('/api/process-image', formData, {
+      const response = await axios.post('/api/process-image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      // Set the processed result to display to the user
-      setProcessedResult(response.data);
+      onResult(response.data);
     } catch (err: any) {
-      // Handle errors
       setError(
         err.response?.data?.error || 'An error occurred while processing the image.'
       );
@@ -71,50 +66,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
     }
   };
 
-  // Function to handle approval
-  const handleApprove = async () => {
-    if (!processedResult) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const payload = {
-        original_image_base64: processedResult.original_image_base64,
-        processed_image_base64: processedResult.processed_image_base64,
-        countedVials: processedResult.counted_vials, // Changed to countedVials
-        percentage: parseFloat(processedResult.percentage),
-      };
-
-      const response = await axios.post<Result>('/api/save-result', payload, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      alert('Result approved and saved successfully!');
-      setProcessedResult(null);
-      setImage(null);
-      setExpectedCount('');
-      onResult(response.data);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.error || 'An error occurred while saving the result.'
-      );
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleClear = () => {
-    setProcessedResult(null);
     setImage(null);
     setExpectedCount('');
     setError('');
+    onResult(null);
   };
-
-  console.log('Processed Result:', processedResult);
 
   return (
     <div className="flex justify-center w-full">
@@ -158,36 +115,25 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           className="mb-4 p-2 border rounded w-full"
         />
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Processing...' : 'Submit'}
-        </button>
+        {/* Button Container */}
+        <div className="flex flex-row gap-4 w-full">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Processing...' : 'Submit'}
+          </button>
 
-        {/* Approve and Clear Buttons after Processing */}
-        {processedResult && (
-          <div className="flex space-x-4 mt-4">
-            <button
-              type="button"
-              onClick={handleApprove}
-              disabled={loading}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Approve
-            </button>
-            <button
-              type="button"
-              onClick={handleClear}
-              disabled={loading}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Clear
-            </button>
-          </div>
-        )}
+          <button
+            type="button"
+            onClick={handleClear}
+            disabled={loading}
+            className="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Clear Upload
+          </button>
+        </div>
 
         {/* Error Message */}
         {error && <p className="text-red-500 mt-4">{error}</p>}
