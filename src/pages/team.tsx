@@ -25,7 +25,7 @@ const TeamPage: React.FC = () => {
       imageUrl: '/images/team/andrew-pfp.jpg'
     },
     { 
-      name: 'Harrison Shoemaker',
+      name: 'Harrison Pham',
       url: 'https://www.linkedin.com/in/harrison2204/',
       role: 'Frontend Developer',
       imageUrl: '/images/team/harrison-pfp.jpg'
