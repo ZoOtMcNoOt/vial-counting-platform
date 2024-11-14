@@ -110,7 +110,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
         )}
 
         {/* Expected Count Input */}
-        <label htmlFor="expected-count" className="w-full">
+        <label htmlFor="expected-count" className="w-full mb-4">
           <span className="sr-only">Expected Vial Count</span>
           <input
             type="number"
@@ -118,8 +118,15 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
             placeholder="Expected Vial Count"
             value={expectedCount}
             onChange={(e) => setExpectedCount(e.target.value)}
-            className="mb-4 p-2 border rounded w-full text-gray-700 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400"
+            className="p-2 border rounded w-full 
+                       text-gray-700 dark:text-gray-300 
+                       placeholder-gray-500 dark:placeholder-gray-400 
+                       bg-white dark:bg-gray-700 
+                       border-gray-300 dark:border-gray-600 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 
+                       focus:border-transparent"
             aria-required="true"
+            required
           />
         </label>
 
