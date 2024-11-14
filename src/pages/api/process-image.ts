@@ -8,6 +8,7 @@ import mime from 'mime-types';
 import os from 'os';
 import type { Result } from '../../types';
 import heicConvert from 'heic-convert';
+import axios from 'axios';
 
 // Disable Next.js default body parsing
 export const config = {
@@ -72,6 +73,7 @@ const convertToOptimalFormat = async (buffer: Buffer, mimeType: string): Promise
     return Buffer.from(convertedBuffer);
   }
 
+  // For non-HEIC images, ensure JPEG format
   return await sharp(buffer)
     .jpeg({
       quality: 80,
@@ -94,41 +96,54 @@ const processImage = async (
 ): Promise<{
   counted_vials: number;
   percentage: string;
-  processedImageBase64: string;
   originalImageBase64: string;
+  processedImageBase64: string;
 }> => {
   console.log('Processing image...');
 
-  // Read the file into a buffer
-  const imageBuffer = await fs.readFile(filePath);
+  try {
+    // Read and convert to optimal format first
+    const imageBuffer = await fs.readFile(filePath);
+    const optimizedBuffer = await convertToOptimalFormat(imageBuffer, mimeType);
+    const base64Image = optimizedBuffer.toString('base64');
 
-  // Convert to optimal format first
-  const convertedBuffer = await convertToOptimalFormat(imageBuffer, mimeType);
-  const originalImageBase64 = convertedBuffer.toString('base64');
+    const response = await axios({
+      method: "POST",
+      url: "https://detect.roboflow.com/vial-counting-xthkt/10",
+      params: {
+        api_key: process.env.COMPUTER_VISION_API_KEY,
+        format: 'image_and_json',
+        stroke: 2,
+        labels: false
+      },
+      data: base64Image,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
 
-  // Process the converted image
-  const processedImageBuffer = await sharp(convertedBuffer)
-    .grayscale()
-    .jpeg({
-      quality: 80,
-      mozjpeg: true
-    })
-    .toBuffer();
+    if (!response.data) {
+      throw new Error('No response data from Roboflow API');
+    }
 
-  const processedImageBase64 = processedImageBuffer.toString('base64');
+    const counted_vials = response.data.predictions?.length || 0;
+    const percentage = ((counted_vials / expectedCount) * 100).toFixed(2);
 
-  // Simulate processing delay
-  await new Promise((res) => setTimeout(res, 2000));
+    // Add data URI prefix to base64 strings for proper image display
+    const formattedOriginal = `data:image/jpeg;base64,${base64Image}`;
+    const formattedProcessed = `data:image/jpeg;base64,${response.data.visualization || base64Image}`;
 
-  const counted_vials = Math.floor(expectedCount * (0.9 + Math.random() * 0.2));
-  const percentage = ((counted_vials / expectedCount) * 100).toFixed(2);
+    return {
+      counted_vials,
+      percentage,
+      originalImageBase64: formattedOriginal,
+      processedImageBase64: formattedProcessed
+    };
 
-  return {
-    counted_vials,
-    percentage,
-    processedImageBase64,
-    originalImageBase64
-  };
+  } catch (error: any) {
+    console.error('Error calling Roboflow API:', error.response?.data || error.message);
+    throw new Error(`Roboflow API error: ${error.message}`);
+  }
 };
 
 const retry = async (fn: () => Promise<void>, retries = 3, delayMs = 500) => {
@@ -228,7 +243,7 @@ export default async function handler(
     }
 
     // Process the image
-    const { counted_vials, percentage, processedImageBase64, originalImageBase64 } = await processImage(
+    const { counted_vials, percentage, processedImageBase64 } = await processImage(
       image.filepath,
       expectedCount,
       mimeType
@@ -240,7 +255,6 @@ export default async function handler(
 
     // Return the processed results to the frontend for approval
     res.status(200).json({
-      original_image_base64: originalImageBase64,
       processed_image_base64: processedImageBase64,
       counted_vials,
       percentage: parseFloat(percentage),
