@@ -20,7 +20,7 @@ const Header: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
         {/* Logo or Brand Name */}
         <h1 className="text-white text-2xl font-bold">
-          Please Give Me A Job 3000
+          Vial Counting Platform
         </h1>
 
         {/* Desktop Navigation */}
