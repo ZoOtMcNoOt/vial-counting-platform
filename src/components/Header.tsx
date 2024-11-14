@@ -3,7 +3,7 @@ import Link from 'next/link';
 import DarkModeToggle from './DarkModeToggle';
 import { useRouter } from 'next/router';
 import { Transition } from '@headlessui/react';
-import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline'; // Updated import
+import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -29,11 +29,11 @@ const Header: React.FC = () => {
             <Link
               key={link.name}
               href={link.path}
-              className={`${
+              className={`block text-white px-3 py-2 rounded-md text-base font-medium ${
                 router.pathname === link.path
-                  ? 'underline text-white'
-                  : 'text-white hover:underline'
-              } font-medium transition duration-300`}
+                  ? 'underline'
+                  : 'hover:bg-red-500 hover:underline'
+              }`}
             >
               {link.name}
             </Link>
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
             {isMobileMenuOpen ? (
               <XMarkIcon className="h-6 w-6" />
             ) : (
-              <Bars3Icon className="h-6 w-6" /> // Replaced SVG with Heroicons
+              <Bars3Icon className="h-6 w-6" />
             )}
           </button>
         </div>
@@ -83,7 +83,7 @@ const Header: React.FC = () => {
                   router.pathname === link.path
                     ? 'underline'
                     : 'hover:bg-red-500 hover:underline'
-                } transition duration-300`}
+                }`}
               >
                 {link.name}
               </Link>

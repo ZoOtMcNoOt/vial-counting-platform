@@ -45,7 +45,7 @@ const ResultsList: React.FC<ResultsListProps> = () => {
     <div className="mt-8 w-full">
       <h2 className="text-3xl font-semibold mb-6 text-center">All Results</h2>
       {results.length === 0 ? (
-        <p className="text-center">No results available.</p>
+        <p className="text-center text-gray-600 dark:text-gray-400">No results available.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {results.map((result) => (
@@ -64,18 +64,15 @@ const ResultsList: React.FC<ResultsListProps> = () => {
               {/* Result Details */}
               <div className="flex-grow p-4">
                 <div className="mb-2">
-                  <p className="text-lg">
-                    <span className="font-semibold">Counted Vials:</span>{' '}
-                    {result.counted_vials}
+                  <p className="text-lg text-gray-800 dark:text-gray-200">
+                    <span className="font-semibold">Counted Vials:</span> {result.counted_vials}
                   </p>
-                  <p className="text-lg">
-                    <span className="font-semibold">Percentage:</span>{' '}
-                    {result.percentage}%
+                  <p className="text-lg text-gray-800 dark:text-gray-200">
+                    <span className="font-semibold">Percentage:</span> {result.percentage}%
                   </p>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Processed At:{' '}
-                  {new Date(result.created_at).toLocaleString()}
+                  Processed At: {new Date(result.created_at).toLocaleString()}
                 </p>
               </div>
 
