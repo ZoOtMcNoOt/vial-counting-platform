@@ -5,6 +5,7 @@ import ImageSlider from './ImageSlider';
 import type { Result } from '../types';
 import axios from 'axios';
 import ResultCardSkeleton from './ResultCardSkeleton';
+import { formatLocalDateTime } from '../utils/dateUtils';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -81,7 +82,7 @@ const ResultsList: React.FC = () => {
                   </p>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {new Date(result.created_at).toLocaleString()}
+                  {formatLocalDateTime(result.created_at)}
                 </p>
               </div>
             </div>
