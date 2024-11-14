@@ -1,5 +1,3 @@
-// src/pages/api/save-result.ts
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseServer } from '../../lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
