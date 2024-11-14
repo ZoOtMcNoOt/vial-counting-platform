@@ -5,61 +5,63 @@ import { useRouter } from 'next/router';
 import { Transition } from '@headlessui/react';
 import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
+const navLinks = [
+  { name: 'Home', path: '/' },
+  { name: 'Upload', path: '/upload' },
+  { name: 'Gallery', path: '/gallery' },
+  { name: 'Team', path: '/team' },
+];
+
 const Header: React.FC = () => {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
-  const navLinks = [
-    { name: 'How to Use', path: '/' },
-    { name: 'Upload', path: '/upload' },
-    { name: 'Gallery', path: '/gallery' },
-    // Add more navigation links here if needed
-  ];
-
   return (
-    <header className="w-full bg-red-600 dark:bg-red-700 py-4 shadow fixed top-0 left-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-        {/* Logo or Brand Name */}
-        <h1 className="text-white text-2xl font-bold">
-          Vial Counting Platform
-        </h1>
+    <header className="w-full bg-red-600 py-4 shadow fixed top-0 left-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo and Title */}
+          <div className="flex-shrink-0 flex items-center">
+            <h1 className="text-white font-bold text-xl">Vial Counting Platform</h1>
+          </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.path}
-              className={`block text-white px-3 py-2 rounded-md text-base font-medium ${
-                router.pathname === link.path
-                  ? 'underline'
-                  : 'hover:bg-red-600 hover:underline' // Ensures underline maintains contrast
-              }`}
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.path}
+                className={`block text-white px-3 py-2 rounded-md text-base font-medium ${
+                  router.pathname === link.path
+                    ? 'underline'
+                    : 'hover:text-yellow-300 hover:underline' // Updated hover color for better contrast
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Dark Mode Toggle */}
+          <div className="hidden md:block">
+            <DarkModeToggle />
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <DarkModeToggle />
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="ml-2 p-2 rounded-md text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-white transition duration-300"
+              aria-label="Toggle Menu"
             >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Dark Mode Toggle */}
-        <div className="hidden md:block">
-          <DarkModeToggle />
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center">
-          <DarkModeToggle />
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="ml-2 p-2 rounded-md text-white hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-white transition duration-300"
-            aria-label="Toggle Menu"
-          >
-            {isMobileMenuOpen ? (
-              <XMarkIcon className="h-6 w-6" />
-            ) : (
-              <Bars3Icon className="h-6 w-6" />
-            )}
-          </button>
+              {isMobileMenuOpen ? (
+                <XMarkIcon className="h-6 w-6" />
+              ) : (
+                <Bars3Icon className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -83,7 +85,7 @@ const Header: React.FC = () => {
                 className={`block text-white px-3 py-2 rounded-md text-base font-medium ${
                   router.pathname === link.path
                     ? 'underline'
-                    : 'hover:bg-red-500 hover:underline'
+                    : 'hover:text-yellow-300 hover:underline' // Updated hover color for better contrast
                 }`}
               >
                 {link.name}
