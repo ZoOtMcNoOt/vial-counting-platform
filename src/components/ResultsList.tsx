@@ -3,43 +3,21 @@ import ImageSlider from './ImageSlider';
 import type { Result } from '../types';
 import axios from 'axios';
 
-interface ResultsListProps {}
-
-const ResultsList: React.FC<ResultsListProps> = () => {
+const ResultsList: React.FC = () => {
   const [results, setResults] = useState<Result[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
-
-  const fetchResults = async () => {
-    try {
-      const response = await axios.get<Result[]>('/api/all-results');
-      setResults(response.data);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.error || 'An error occurred while fetching results.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const response = await axios.get<Result[]>('/api/all-results');
+        setResults(response.data);
+      } catch (error) {
+        console.error('Error fetching results:', error);
+      }
+    };
+
     fetchResults();
   }, []);
-
-  if (loading)
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-lg">Loading results...</p>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-red-500">{error}</p>
-      </div>
-    );
 
   return (
     <div className="mt-8 w-full">
@@ -51,7 +29,7 @@ const ResultsList: React.FC<ResultsListProps> = () => {
           {results.map((result) => (
             <div
               key={result.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col transform hover:scale-105 transition-transform duration-300"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col h-full"
             >
               {/* Image Slider */}
               <div className="h-48 md:h-60 lg:h-64">

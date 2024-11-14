@@ -4,12 +4,14 @@ interface ResultDisplayProps {
   imageUrl: string; // Signed URL
   countedVials: number;
   percentage: string;
+  className?: string; // Accept additional classes
 }
 
 const ResultDisplay: React.FC<ResultDisplayProps> = ({
   imageUrl,
   countedVials,
   percentage,
+  className,
 }) => {
   const [downloadError, setDownloadError] = useState<boolean>(false);
 
@@ -45,7 +47,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
   };
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col">
+    <div className={`w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col ${className}`}>
       <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
         Processed Results
       </h2>

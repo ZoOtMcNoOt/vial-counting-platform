@@ -6,7 +6,6 @@ import ResultsList from '../components/ResultsList';
 
 const Gallery: React.FC = () => {
   return (
-    <html lang="en"> 
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-16">
       <Head>
         <title>Gallery - Vial Counting Platform</title> 
@@ -19,7 +18,6 @@ const Gallery: React.FC = () => {
       </main>
       <Footer />
     </div>
-    </html>
   );
 };
 

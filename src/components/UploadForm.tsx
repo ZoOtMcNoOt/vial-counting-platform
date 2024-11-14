@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import axios from 'axios';
+import { useDropzone, Accept } from 'react-dropzone';
 
 interface ResultData {
   id: number;
-  original_image_url: string; // Signed URL
-  processed_image_url: string; // Signed URL
+  original_image_url: string;
+  processed_image_url: string;
   counted_vials: number;
   percentage: number;
   created_at: string;
@@ -20,11 +21,23 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
+  // Define the accepted file types using the Accept type
+  const acceptedFileTypes: Accept = {
+    'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.bmp', '.tiff', '.webp'],
   };
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      setImage(acceptedFiles[0]);
+      setError('');
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+    onDrop,
+    accept: acceptedFileTypes, // Use the object instead of a string
+    multiple: false,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,47 +79,52 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   };
 
   return (
-    <div className="relative">
-      {/* Cute Cat Emoji Animation */}
-      {!loading && (
-        <div className="absolute -top-6 -right-6 text-4xl md:text-5xl animate-bounce-slow z-30">
-          🐱
-        </div>
-      )}
-
+    <div className="flex justify-center w-full">
       <form
         onSubmit={handleSubmit}
-        className="h-full flex flex-col justify-center bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 relative z-20"
+        className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-col items-center"
       >
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
           Upload Tray Image
         </h2>
 
-        <div>
-          <label htmlFor="trayImage" className="block text-gray-700 dark:text-gray-300 mb-2">
-            Tray Image:
-          </label>
-          <input
-            id="trayImage"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className={`block w-full text-sm text-gray-500 dark:text-gray-400
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 dark:file:bg-gray-700 file:text-red-700 dark:file:text-red-400
-              hover:file:bg-blue-100 dark:hover:file:bg-gray-600
-              transition-all duration-200
-              focus:outline-none focus:ring-2 ${
-                error && !image
-                  ? 'focus:ring-red-500 border-red-500'
-                  : 'focus:ring-blue-500 border-gray-300 dark:border-gray-600'
-              }`}
-          />
+        {/* Dropzone */}
+        <div
+          {...getRootProps()}
+          className={`w-full mb-4 p-6 border-2 border-dashed rounded-md cursor-pointer
+            ${
+              isDragActive
+                ? 'border-blue-400 bg-blue-50'
+                : 'border-gray-300 dark:border-gray-600'
+            }
+            ${
+              isDragReject
+                ? 'border-red-400 bg-red-50'
+                : ''
+            }
+            transition-all duration-200`}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p className="text-blue-500">Drop the image here...</p>
+          ) : isDragReject ? (
+            <p className="text-red-500">Unsupported file type...</p>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400">
+              Drag and drop here or click to select .jpg or .png files.
+            </p>
+          )}
         </div>
 
-        <div>
+        {/* Display Selected File Name */}
+        {image && (
+          <div className="w-full mb-4 text-center">
+            <p className="text-gray-700 dark:text-gray-300">Selected File: {image.name}</p>
+          </div>
+        )}
+
+        {/* Expected Vial Count Input */}
+        <div className="w-full mb-4">
           <label htmlFor="expectedCount" className="block text-gray-700 dark:text-gray-300 mb-2">
             Expected Vial Count:
           </label>
@@ -132,10 +150,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           />
         </div>
 
+        {/* Error Message */}
         {error && (
           <p className="text-red-500 dark:text-red-400 text-sm mt-2">{error}</p>
         )}
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}

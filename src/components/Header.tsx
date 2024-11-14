@@ -10,7 +10,8 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const navLinks = [
-    { name: 'Home', path: '/' },
+    { name: 'How to Use', path: '/' },
+    { name: 'Upload', path: '/upload' },
     { name: 'Gallery', path: '/gallery' },
     // Add more navigation links here if needed
   ];
