@@ -26,7 +26,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
   const handleDownload = () => {
     try {
       const link = document.createElement('a');
-      link.href = `data:image/jpeg;base64,${processedImageBase64}`;
+      link.href = `data:image/base64,${processedImageBase64}`;
       link.download = `processed-image-${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
@@ -76,8 +76,8 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
       {/* Image Comparison Section */}
       <div className="mb-8 relative aspect-[4/3] w-full">
         <ImageSlider
-          beforeImage={`data:image/jpeg;base64,${originalImageBase64}`}
-          afterImage={`data:image/jpeg;base64,${processedImageBase64}`}
+          beforeImage={originalImageBase64}
+          afterImage={processedImageBase64}
         />
       </div>
 

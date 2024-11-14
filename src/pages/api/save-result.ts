@@ -3,11 +3,11 @@ import { supabaseServer } from '../../lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
 
-// Addi API config at top of file
+// Add API config at top of file
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb' //z Increase limit to 10MB
+      sizeLimit: '10mb' // Increase limit to 10MB
     }
   }
 };
@@ -58,7 +58,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   console.log(`Received ${req.method} request at /api/save-result`);
-
   try {
     if (req.method !== 'POST') {
       console.warn(`Method ${req.method} not allowed`);
@@ -104,7 +103,6 @@ export default async function handler(
       originalFilename,
       mimeType
     );
-
     const processedImageUrl = await uploadToSupabase(
       'after-images',
       processedBuffer,
@@ -138,9 +136,7 @@ export default async function handler(
     }
 
     const insertedResult = data[0];
-
     console.log('Result inserted successfully:', insertedResult);
-
     res.status(200).json(insertedResult);
 
   } catch (error: any) {

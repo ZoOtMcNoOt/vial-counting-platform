@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { ReactCompareSlider } from 'react-compare-slider';
 
 interface ImageSliderProps {
-  beforeImage: string; // Signed URL
-  afterImage: string;  // Signed URL
-  className?: string; // Accept additional classes
+  beforeImage: string;
+  afterImage: string;
+  className?: string;
 }
 
 const ImageSlider: React.FC<ImageSliderProps> = ({ beforeImage, afterImage, className }) => {
   const [beforeError, setBeforeError] = useState<boolean>(false);
   const [afterError, setAfterError] = useState<boolean>(false);
+
+  console.log('Before Image URL:', beforeImage);
+  console.log('After Image URL:', afterImage);
 
   return (
     <div className={`w-full h-full relative ${className}`}>
