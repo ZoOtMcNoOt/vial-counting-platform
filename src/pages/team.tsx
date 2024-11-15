@@ -43,33 +43,54 @@ const TeamPage: React.FC = () => {
         <title>Team - Vial Counting Platform</title>
         <meta name="description" content="Meet our team of developers" />
       </Head>
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-2">Our Team</h1>
-        <p className="text-gray-600 dark:text-gray-400 text-sm">Click To Connect!</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl w-full">
-        {teamMembers.map((member) => (
-          <a
-            key={member.name}
-            href={member.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
-          >
-            <div className="w-32 h-32 relative mb-4 rounded-full overflow-hidden">
-              <Image
-                src={member.imageUrl}
-                alt={member.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </div>
-            <h2 className="text-xl font-semibold mb-2">{member.name}</h2>
-            <p className="text-gray-600 dark:text-gray-400">{member.role}</p>
-          </a>
-        ))}
-      </div>
+
+      {/* Header Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4">Our Team</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base mb-8">
+            Connect with our talented team members
+          </p>
+        </div>
+
+        {/* Team Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {teamMembers.map((member) => (
+            <a
+              key={member.name}
+              href={member.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md 
+                       hover:shadow-lg transition-all duration-200 hover:scale-102 hover:bg-gray-50 
+                       dark:hover:bg-gray-700"
+            >
+              {/* Profile Image */}
+              <div className="relative w-24 h-24 sm:w-32 sm:h-32 mb-4 rounded-full overflow-hidden 
+                          group-hover:ring-4 ring-blue-500 ring-opacity-50 transition-all duration-200">
+                <Image
+                  src={member.imageUrl}
+                  alt={member.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 96px, (max-width: 1024px) 128px, 128px"
+                />
+              </div>
+
+              {/* Member Info */}
+              <div className="text-center">
+                <h2 className="text-lg sm:text-xl font-semibold mb-2 group-hover:text-blue-600 
+                           dark:group-hover:text-blue-400 transition-colors duration-200">
+                  {member.name}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
+                  {member.role}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
     </Layout>
   );
 };

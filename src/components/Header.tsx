@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ThemeContext } from '../context/ThemeContext';
-import DarkModeToggle from './DarkModeToggle';
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 
 interface NavLink {
   name: string;
@@ -16,6 +16,30 @@ const navLinks: NavLink[] = [
   { name: 'Team', path: '/team' },
   // Add more links as needed
 ];
+
+const DarkModeToggle: React.FC = () => {
+  const { isDarkMode, toggleDarkMode } = useContext(ThemeContext);
+
+  return (
+    <button
+      onClick={toggleDarkMode}
+      className="relative p-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 w-10 h-10"
+      aria-label="Toggle Dark Mode"
+    >
+      <div
+        className={`absolute inset-0 flex items-center justify-center transition-transform duration-500 ${
+          isDarkMode ? 'rotate-180' : 'rotate-0'
+        }`}
+      >
+        {isDarkMode ? (
+          <SunIcon className="h-6 w-6" />
+        ) : (
+          <MoonIcon className="h-6 w-6" />
+        )}
+      </div>
+    </button>
+  );
+};
 
 const Header: React.FC = () => {
   const { isDarkMode } = useContext(ThemeContext);

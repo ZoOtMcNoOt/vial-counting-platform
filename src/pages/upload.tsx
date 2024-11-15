@@ -3,13 +3,13 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import UploadForm from '../components/UploadForm';
 import ResultDisplay from '../components/ResultDisplay';
-import TeamLinks from '../components/TeamLinks';
+import type { ProcessedImageResult } from '../types';
 
 const Upload: React.FC = () => {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ProcessedImageResult | null>(null);
   const [showForm, setShowForm] = useState(true);
 
-  const handleResult = (data: any) => {
+  const handleResult = (data: ProcessedImageResult) => {
     if (data) {
       setResult(data);
       setShowForm(false);
@@ -17,8 +17,8 @@ const Upload: React.FC = () => {
   };
 
   const handleClear = () => {
-    setResult(null); // Clear the results
-    setShowForm(true); // Show the form again
+    setResult(null);
+    setShowForm(true);
   };
 
   return (
@@ -26,21 +26,36 @@ const Upload: React.FC = () => {
       <Head>
         <title>Upload - Vial Counting Platform</title>
         <meta name="description" content="Upload and process tray images to count vials." />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
-      {showForm && <UploadForm onResult={handleResult} />}
 
-      {result && (
-        <div className="w-full md:w-1/2 flex justify-center mt-8">
-          <ResultDisplay
-            originalImageBase64={result.original_image_base64}
-            processedImageBase64={result.processed_image_base64}
-            countedVials={result.counted_vials}
-            percentage={result.percentage.toString()}
-            onClear={handleClear}
-          />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+        <div className="text-center sm:text-left mb-8">
         </div>
-      )}
-       </Layout>
+
+        <div className="flex flex-col items-center space-y-8">
+          {showForm && (
+            <div className="w-full max-w-2xl transition-all duration-300 ease-in-out">
+              <UploadForm onResult={handleResult} />
+            </div>
+          )}
+
+          {result && (
+            <div className="w-full max-w-4xl transition-all duration-300 ease-in-out">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <ResultDisplay
+                  originalImageBase64={result.original_image_base64}
+                  processedImageBase64={result.processed_image_base64}
+                  countedVials={result.counted_vials}
+                  percentage={Number(result.percentage)} 
+                  onClear={handleClear}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Layout>
   );
 };
 
