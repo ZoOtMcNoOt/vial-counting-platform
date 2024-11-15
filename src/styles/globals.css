@@ -2,31 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* Base styles */
 @layer base {
-  /* Base styles */
   body {
     @apply bg-gray-50 font-sans text-gray-900;
+    margin: 0; /* Ensure no default margin */
   }
+  
   /* Dark mode styles */
   .dark body {
     @apply bg-gray-900 text-white;
   }
+  
   /* Headings */
   h1, h2, h3, h4, h5, h6 {
     @apply text-gray-900;
   }
+  
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
     @apply text-white;
   }
+  
   /* Links */
   a {
     @apply text-red-600 hover:text-red-700;
   }
+  
   .dark a {
     @apply text-white hover:text-red-500;
   }
+  
   /* Buttons */
   button {
     @apply cursor-pointer;
+  }
+
+  html {
+    overflow-y: scroll;
   }
 }
