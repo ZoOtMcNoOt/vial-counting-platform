@@ -11,6 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const limit = Number(req.query.limit) || 9;
 
   try {
+    // Get database results first
     const { data, error, count } = await supabaseServer
       .from('results')
       .select('*', { count: 'exact' })
@@ -18,35 +19,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .range(cursor, cursor + limit - 1);
 
     if (error) throw error;
+    if (!data?.length) {
+      return res.status(200).json({ results: [], count: 0 });
+    }
 
-    // Generate signed URLs in parallel
+    // Generate signed URLs
     const resultsWithUrls = await Promise.all(
       data.map(async (result) => {
-        const [originalUrlResponse, processedUrlResponse] = await Promise.all([
-          supabaseServer.storage
-            .from('before-images')
-            .createSignedUrl(result.original_image_url, 3600),
-          supabaseServer.storage
-            .from('after-images')
-            .createSignedUrl(result.processed_image_url, 3600),
-        ]);
+        try {
+          // Extract just the filename from the stored URL
+          const getFilename = (url: string) => {
+            const parts = url.split('/');
+            return parts[parts.length - 1].split('?')[0]; // Get last part and remove query params
+          };
 
-        return {
-          ...result,
-          original_image_url: originalUrlResponse.data?.signedUrl || result.original_image_url,
-          processed_image_url: processedUrlResponse.data?.signedUrl || result.processed_image_url,
-        };
+          const originalFilename = getFilename(result.original_image_url);
+          const processedFilename = getFilename(result.processed_image_url);
+
+          // Create new signed URLs
+          const [originalUrlResponse, processedUrlResponse] = await Promise.all([
+            supabaseServer.storage
+              .from('before-images')
+              .createSignedUrl(originalFilename, 3600),
+            supabaseServer.storage
+              .from('after-images')
+              .createSignedUrl(processedFilename, 3600)
+          ]);
+
+          return {
+            ...result,
+            original_image_url: originalUrlResponse.data?.signedUrl || result.original_image_url,
+            processed_image_url: processedUrlResponse.data?.signedUrl || result.processed_image_url
+          };
+        } catch (err) {
+          console.error('Error processing result:', result.id, err);
+          return result;
+        }
       })
     );
 
-    const nextCursor = count && cursor + limit < count ? cursor + limit : null;
-
-    res.status(200).json({
+    return res.status(200).json({
       results: resultsWithUrls,
-      nextCursor,
+      count,
+      nextCursor: cursor + limit < (count || 0) ? cursor + limit : null
     });
-  } catch (error) {
-    console.error('Error fetching results:', error);
-    res.status(500).json({ error: 'Error fetching results' });
+
+  } catch (err) {
+    console.error('Error in API handler:', err);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }

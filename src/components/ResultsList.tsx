@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import ImageSlider from './ImageSlider';
@@ -15,6 +15,9 @@ interface ResultsResponse {
 }
 
 const ResultsList: React.FC = () => {
+  const [results, setResults] = useState<Result[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const { ref, inView } = useInView();
 
   const {
@@ -45,7 +48,27 @@ const ResultsList: React.FC = () => {
     }
   }, [inView, fetchNextPage, hasNextPage]);
 
-  if (isLoading) {
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const response = await fetch('/api/all-results');
+        const data = await response.json();
+        if (response.ok) {
+          setResults(data.results);
+        } else {
+          setError(data.error || 'Failed to fetch results');
+        }
+      } catch (err) {
+        setError('An unexpected error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, []);
+
+  if (isLoading || loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(6)].map((_, i) => (
@@ -54,6 +77,8 @@ const ResultsList: React.FC = () => {
       </div>
     );
   }
+
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="mt-8 w-full">
