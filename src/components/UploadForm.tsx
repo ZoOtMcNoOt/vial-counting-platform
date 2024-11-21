@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { useDropzone, FileRejection } from 'react-dropzone';
+import { useDropzone, FileRejection, Accept } from 'react-dropzone';
 
 interface UploadFormProps {
   onResult: (result: any) => void;
@@ -36,7 +36,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     onDropRejected,
-    accept: 'image/jpeg, image/png, image/heic, image/heif', // Changed to string format
+    accept: {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+      'image/heic': ['.heic'],
+      'image/heif': ['.heif'],
+    } as Accept,
     multiple: false,
   });
 
