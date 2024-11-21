@@ -171,6 +171,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 value={expectedCount}
                 onChange={(e) => setExpectedCount(e.target.value)}
                 required
+                placeholder=" Ex: 210"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
               />
             </div>
@@ -186,6 +187,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 value={trayNumber}
                 onChange={(e) => setTrayNumber(e.target.value)}
                 required
+                placeholder=" Ex: 2"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
               />
             </div>
@@ -203,6 +205,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
                 required
+                placeholder=" Ex: 11887799"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
               />
             </div>
@@ -218,6 +221,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 value={lotId}
                 onChange={(e) => setLotId(e.target.value)}
                 required
+                placeholder=" Ex: D772369"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
               />
             </div>
@@ -240,9 +244,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
             Clear
           </button>
         </div>
-
-        {/* Error Message */}
-        {error && <p className="text-red-500 mt-4">{error}</p>}
       </form>
     </div>
   );
