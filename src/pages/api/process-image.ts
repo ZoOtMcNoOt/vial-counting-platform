@@ -227,7 +227,7 @@ export default async function handler(
 
     console.log(`Expected count: ${expectedCount}`);
 
-    if (isNaN(expectedCount) || expectedCount <= 0) {
+    if (isNaN(expectedCount) || expectedCount < 0) {
       console.warn('Expected count must be a positive number');
       return res.status(400).json({ error: 'Expected count must be a positive number' });
     }

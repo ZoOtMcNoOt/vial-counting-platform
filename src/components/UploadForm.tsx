@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { useDropzone, FileRejection, Accept } from 'react-dropzone';
+import { ProcessedImageResult } from '../types'; // Add this import
 
 interface UploadFormProps {
-  onResult: (result: any) => void;
+  onResult: (data: ProcessedImageResult) => void;
 }
 
 const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
@@ -58,7 +59,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
       return;
     }
 
-    if (!expectedCount || isNaN(Number(expectedCount)) || Number(expectedCount) <= 0) {
+    const parsedExpectedCount = Number(expectedCount);
+    if (
+      expectedCount === '' ||
+      isNaN(parsedExpectedCount) ||
+      parsedExpectedCount < 0
+    ) {
       setError('Please enter a valid expected count.');
       console.warn('Form submission failed: Invalid expected count.');
       return;
@@ -244,6 +250,13 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
             Clear
           </button>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <p className="mt-4 text-red-500 text-sm">
+            {error}
+          </p>
+        )}
       </form>
     </div>
   );
