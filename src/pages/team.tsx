@@ -14,13 +14,13 @@ const TeamPage: React.FC = () => {
     {
       name: 'Chance French',
       url: 'https://www.linkedin.com/in/chance-french/',
-      role: 'QA Engineer',
+      role: 'Project Manager',
       imageUrl: '/images/team/chance-pfp.jpg',
     },
     {
       name: 'Andrew Riggan',
       url: 'https://www.linkedin.com/in/andrew-riggan-78335a24a/',
-      role: 'Project Manager',
+      role: 'QA Engineer',
       imageUrl: '/images/team/andrew-pfp.jpg',
     },
     {

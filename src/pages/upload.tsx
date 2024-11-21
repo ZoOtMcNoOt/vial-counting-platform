@@ -47,6 +47,9 @@ const Upload: React.FC = () => {
                   processedImageBase64={result.processed_image_base64}
                   countedVials={result.counted_vials}
                   percentage={Number(result.percentage)} 
+                  lot_id={result.lot_id}
+                  order_number={result.order_number}
+                  tray_number={result.tray_number}
                   onClear={handleClear}
                 />
               </div>

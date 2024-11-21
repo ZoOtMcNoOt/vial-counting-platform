@@ -15,7 +15,6 @@ interface ResultsResponse {
 }
 
 const ResultsList: React.FC = () => {
-  const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { ref, inView } = useInView();
@@ -54,7 +53,7 @@ const ResultsList: React.FC = () => {
         const response = await fetch('/api/all-results');
         const data = await response.json();
         if (response.ok) {
-          setResults(data.results);
+          // Assuming initial fetch logic is handled by react-query
         } else {
           setError(data.error || 'Failed to fetch results');
         }
@@ -64,7 +63,6 @@ const ResultsList: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchResults();
   }, []);
 
@@ -78,49 +76,73 @@ const ResultsList: React.FC = () => {
     );
   }
 
-  if (error) return <p>Error: {error}</p>;
+  if (error) return <p className="text-red-500 text-center">{`Error: ${error}`}</p>;
 
   return (
     <div className="mt-8 w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {data?.pages.map((page) =>
-          page.results.map((result) => (
-            <div
-              key={result.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col h-full"
-            >
-              <div className="h-48 md:h-60 lg:h-64">
-                <ImageSlider
-                  beforeImage={result.original_image_url}
-                  afterImage={result.processed_image_url}
-                />
-              </div>
-              <div className="flex-grow p-4">
-                <div className="mb-2">
-                  <p className="text-lg text-gray-800 dark:text-gray-200">
-                    <span className="font-semibold">Counted Vials:</span>{' '}
-                    {result.counted_vials}
-                  </p>
-                  <p className="text-lg text-gray-800 dark:text-gray-200">
-                    <span className="font-semibold">Percentage:</span>{' '}
-                    {result.percentage}%
-                  </p>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {formatLocalDateTime(result.created_at)}
-                </p>
-              </div>
-            </div>
-          ))
+          page.results.map((result) => <ResultCard key={result.id} result={result} />)
         )}
       </div>
       {hasNextPage && (
         <div ref={ref} className="flex justify-center mt-8">
           {isFetching ? (
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-600"></div>
           ) : null}
         </div>
       )}
+    </div>
+  );
+};
+
+interface ResultCardProps {
+  result: Result;
+}
+
+const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col h-full">
+      <div className="h-48 md:h-60 lg:h-64">
+        <ImageSlider
+          beforeImage={result.original_image_url}
+          afterImage={result.processed_image_url}
+        />
+      </div>
+      <div className="flex-grow p-6 bg-gray-50 dark:bg-gray-700 space-y-4">
+        <div>
+          <p className="text-lg text-gray-700 dark:text-gray-300">
+            <span className="font-semibold">Counted Vials:</span> {result.counted_vials}
+          </p>
+          <p className="text-lg text-gray-700 dark:text-gray-300">
+            <span className="font-semibold">Percentage To Estimation:</span> {result.percentage}%
+          </p>
+        </div>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+        >
+          {isExpanded ? 'Hide Details' : 'Show More'}
+        </button>
+        {isExpanded && (
+          <div className="space-y-2">
+            <p className="text-md text-gray-700 dark:text-gray-300">
+              <span className="font-semibold">Lot ID:</span> {result.lot_id}
+            </p>
+            <p className="text-md text-gray-700 dark:text-gray-300">
+              <span className="font-semibold">Order Number:</span> {result.order_number}
+            </p>
+            <p className="text-md text-gray-700 dark:text-gray-300">
+              <span className="font-semibold">Tray Number:</span> {result.tray_number}
+            </p>
+          </div>
+        )}
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-auto">
+          {formatLocalDateTime(result.created_at)}
+        </p>
+      </div>
     </div>
   );
 };

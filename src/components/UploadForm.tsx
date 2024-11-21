@@ -9,6 +9,9 @@ interface UploadFormProps {
 const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const [image, setImage] = useState<File | null>(null);
   const [expectedCount, setExpectedCount] = useState<string>('');
+  const [lotId, setLotId] = useState<string>('');
+  const [orderNumber, setOrderNumber] = useState<string>('');
+  const [trayNumber, setTrayNumber] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -16,13 +19,13 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
     console.log('UploadForm rendered');
   }, []);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      setImage(acceptedFiles[0]);
-      setError('');
-      console.log('Image selected:', acceptedFiles[0].name);
+  const onDrop = (acceptedFiles: File[]) => {
+    if (acceptedFiles && acceptedFiles[0]) {
+      const file = acceptedFiles[0];
+      setImage(file);
+      console.log('Image selected:', file);
     }
-  }, []);
+  };
 
   const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
     if (fileRejections.length > 0) {
@@ -36,12 +39,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     onDropRejected,
-    accept: {
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png'],
-      'image/heic': ['.heic'],
-      'image/heif': ['.heif'],
-    } as Accept,
+    accept: { 'image/*': [] },
     multiple: false,
   });
 
@@ -60,20 +58,41 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
       return;
     }
 
-    if (!expectedCount || isNaN(Number(expectedCount)) || Number(expectedCount) < 0) {
+    if (!expectedCount || isNaN(Number(expectedCount)) || Number(expectedCount) <= 0) {
       setError('Please enter a valid expected count.');
       console.warn('Form submission failed: Invalid expected count.');
       return;
     }
 
+    if (!lotId.trim()) {
+      setError('Please enter a Lot ID.');
+      console.warn('Form submission failed: Missing Lot ID.');
+      return;
+    }
+
+    if (!orderNumber.trim()) {
+      setError('Please enter an Order Number.');
+      console.warn('Form submission failed: Missing Order Number.');
+      return;
+    }
+
+    if (!trayNumber.trim()) {
+      setError('Please enter a Tray Number.');
+      console.warn('Form submission failed: Missing Tray Number.');
+      return;
+    }
+
     setError('');
     setLoading(true);
-    console.log('Submitting data:', { image: image.name, expectedCount });
+    console.log('Submitting data:', { image: image.name, expectedCount, lotId, orderNumber, trayNumber });
 
     try {
       const formData = new FormData();
       formData.append('image', image);
       formData.append('expectedCount', expectedCount);
+      formData.append('lotId', lotId);
+      formData.append('orderNumber', orderNumber);
+      formData.append('trayNumber', trayNumber);
 
       const response = await axios.post('/api/process-image', formData, {
         headers: {
@@ -97,6 +116,9 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const handleClear = () => {
     setImage(null);
     setExpectedCount('');
+    setLotId('');
+    setOrderNumber('');
+    setTrayNumber('');
     setError('');
     console.log('Form cleared.');
   };
@@ -120,58 +142,102 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
         >
           <input {...getInputProps()} />
           {isDragActive ? (
-            <p className="text-blue-500">Drop the image here...</p>
+            <p className="text-center text-blue-500">Drop the image here...</p>
           ) : (
-            <p>Drag & drop an image here, or click to select one</p>
+            <p className="text-center text-gray-700">
+              Drag & drop an image here, or click to select an image
+            </p>
           )}
         </div>
 
-        {/* Display Selected File */}
+        {/* File Name Display */}
         {image && (
-          <div className="mb-4 text-center">
-            <p className="text-gray-700 dark:text-gray-300">Selected File:</p>
-            <p className="text-green-600 dark:text-green-400">{image.name}</p>
+          <div className="w-full mb-4">
+            <p className="text-gray-700">Selected File: {image.name}</p>
           </div>
         )}
 
-        {/* Expected Count Input */}
-        <label htmlFor="expected-count" className="w-full mb-4">
-          <span className="sr-only">Expected Vial Count</span>
-          <input
-            type="number"
-            id="expected-count"
-            placeholder="Expected Vial Count"
-            value={expectedCount}
-            onChange={(e) => setExpectedCount(e.target.value)}
-            className="p-2 border rounded w-full 
-                       text-gray-700 dark:text-white
-                       placeholder-gray-500 dark:placeholder-gray-400 
-                       bg-white dark:bg-gray-700 
-                       border-gray-300 dark:border-gray-600 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 
-                       focus:border-transparent"
-            aria-required="true"
-            required
-          />
-        </label>
+        {/* Form Fields */}
+        <div className="w-full">
+          <div className="flex mb-4">
+            {/* Expected Count */}
+            <div className="w-1/2 pr-2">
+              <label htmlFor="expectedCount" className="block text-sm font-medium text-gray-700">
+                Expected Count
+              </label>
+              <input
+                type="number"
+                id="expectedCount"
+                value={expectedCount}
+                onChange={(e) => setExpectedCount(e.target.value)}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
 
-        {/* Button Container */}
-        <div className="flex flex-row gap-4 w-full">
+            {/* Tray Number */}
+            <div className="w-1/2 pl-2">
+              <label htmlFor="trayNumber" className="block text-sm font-medium text-gray-700">
+                Tray Number
+              </label>
+              <input
+                type="text"
+                id="trayNumber"
+                value={trayNumber}
+                onChange={(e) => setTrayNumber(e.target.value)}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
+          </div>
+
+          <div className="flex mb-4">
+            {/* Order Number */}
+            <div className="w-1/2 pr-2">
+              <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-700">
+                Order Number
+              </label>
+              <input
+                type="text"
+                id="orderNumber"
+                value={orderNumber}
+                onChange={(e) => setOrderNumber(e.target.value)}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
+
+            {/* Lot ID */}
+            <div className="w-1/2 pl-2">
+              <label htmlFor="lotId" className="block text-sm font-medium text-gray-700">
+                Lot ID
+              </label>
+              <input
+                type="text"
+                id="lotId"
+                value={lotId}
+                onChange={(e) => setLotId(e.target.value)}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit and Clear buttons */}
+        <div className="flex items-center justify-between w-full">
           <button
             type="submit"
-            disabled={loading}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
-            {loading ? 'Processing...' : 'Submit'}
+            Submit
           </button>
-
           <button
             type="button"
             onClick={handleClear}
-            disabled={loading}
-            className="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
           >
-            Clear Upload
+            Clear
           </button>
         </div>
 

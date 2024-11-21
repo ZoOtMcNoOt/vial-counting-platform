@@ -68,11 +68,47 @@ export default async function handler(
   res: NextApiResponse
 ) {
   console.log(`Received ${req.method} request at /api/save-result`);
+  
+  if (req.method !== 'POST') {
+    console.warn(`Method ${req.method} not allowed`);
+    res.setHeader('Allow', 'POST');
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
   try {
-    if (req.method !== 'POST') {
-      console.warn(`Method ${req.method} not allowed`);
-      res.setHeader('Allow', 'POST');
-      return res.status(405).json({ error: 'Method Not Allowed' });
+    const {
+      original_image_base64,
+      processed_image_base64,
+      countedVials,
+      percentage,
+      lot_id,
+      order_number,
+      tray_number,
+    } = req.body as {
+      original_image_base64: string;
+      processed_image_base64: string;
+      countedVials: number;
+      percentage: number;
+      lot_id: string;
+      order_number: string;
+      tray_number: string;
+    };
+
+    if (
+      !original_image_base64 ||
+      !processed_image_base64 ||
+      !lot_id ||
+      !order_number ||
+      !tray_number
+    ) {
+      console.warn('Missing required fields:', {
+        original_image_base64,
+        processed_image_base64,
+        lot_id,
+        order_number,
+        tray_number,
+      });
+      return res.status(400).json({ error: 'Missing required fields.' });
     }
 
     // Validate Content-Length to prevent oversized uploads
@@ -81,19 +117,6 @@ export default async function handler(
       return res.status(413).json({
         error: 'File too large. Maximum size is 10MB.'
       });
-    }
-
-    // Destructure and validate required fields
-    const { original_image_base64, processed_image_base64, countedVials, percentage } = req.body as {
-      original_image_base64: string;
-      processed_image_base64: string;
-      countedVials: number;
-      percentage: number;
-    };
-
-    if (!original_image_base64 || !processed_image_base64) {
-      console.warn('Missing image data');
-      return res.status(400).json({ error: 'Missing image data' });
     }
 
     // Convert Base64 Data URLs to Buffers
@@ -140,6 +163,9 @@ export default async function handler(
         processed_image_url: processedImageUrl,
         counted_vials: countedVials,
         percentage: percentage,
+        lot_id: lot_id,
+        order_number: order_number,
+        tray_number: tray_number,
         approved: true, // Ensure your 'results' table has an 'approved' column
       },
     ]).select();
@@ -158,7 +184,7 @@ export default async function handler(
     console.log('Result inserted successfully:', insertedResult);
     res.status(200).json(insertedResult);
   } catch (error: any) {
-    console.error('Unexpected error in /api/save-result:', error.message || error);
-    res.status(500).json({ error: 'An unexpected error occurred.', details: error.message || 'Unknown error' });
+    console.error('Save Result error:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 }

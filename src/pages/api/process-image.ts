@@ -265,6 +265,56 @@ export default async function handler(
       return res.status(400).json({ error: 'Only JPEG, PNG, HEIC, and HEIF images are allowed.' });
     }
 
+    // Extract additional fields: lotId, orderNumber, trayNumber
+    const lotIdField = fields.lotId;
+    const orderNumberField = fields.orderNumber;
+    const trayNumberField = fields.trayNumber;
+
+    let lotId: string;
+    let orderNumber: string;
+    let trayNumber: string;
+
+    if (Array.isArray(lotIdField)) {
+      lotId = lotIdField[0];
+    } else if (typeof lotIdField === 'string') {
+      lotId = lotIdField;
+    } else {
+      lotId = '';
+    }
+
+    if (Array.isArray(orderNumberField)) {
+      orderNumber = orderNumberField[0];
+    } else if (typeof orderNumberField === 'string') {
+      orderNumber = orderNumberField;
+    } else {
+      orderNumber = '';
+    }
+
+    if (Array.isArray(trayNumberField)) {
+      trayNumber = trayNumberField[0];
+    } else if (typeof trayNumberField === 'string') {
+      trayNumber = trayNumberField;
+    } else {
+      trayNumber = '';
+    }
+
+    console.log(`Lot ID: ${lotId}, Order Number: ${orderNumber}, Tray Number: ${trayNumber}`);
+
+    if (!lotId.trim()) {
+      console.warn('Missing Lot ID');
+      return res.status(400).json({ error: 'Missing Lot ID' });
+    }
+
+    if (!orderNumber.trim()) {
+      console.warn('Missing Order Number');
+      return res.status(400).json({ error: 'Missing Order Number' });
+    }
+
+    if (!trayNumber.trim()) {
+      console.warn('Missing Tray Number');
+      return res.status(400).json({ error: 'Missing Tray Number' });
+    }
+
     // Process the image
     const { counted_vials, percentage, originalImageBase64, processedImageBase64 } = await processImage(
       image.filepath,
@@ -281,6 +331,9 @@ export default async function handler(
       processed_image_base64: processedImageBase64,
       counted_vials,
       percentage,
+      lot_id: lotId,
+      order_number: orderNumber,
+      tray_number: trayNumber,
     });
 
   } catch (error: any) {

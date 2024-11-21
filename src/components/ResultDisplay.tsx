@@ -6,6 +6,9 @@ interface ResultDisplayProps {
   processedImageBase64: string;
   countedVials: number;
   percentage: number;
+  lot_id: string;
+  order_number: string;
+  tray_number: string;
   className?: string;
   onClear: () => void;
 }
@@ -15,6 +18,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
   processedImageBase64,
   countedVials,
   percentage,
+  lot_id,
+  order_number,
+  tray_number,
   className = '',
   onClear,
 }) => {
@@ -46,7 +52,12 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
         processed_image_base64: processedImageBase64,
         countedVials,
         percentage,
+        lot_id,
+        order_number,
+        tray_number,
       };
+
+      console.log('Payload for /api/save-result:', payload);
 
       const response = await fetch('/api/save-result', {
         method: 'POST',
