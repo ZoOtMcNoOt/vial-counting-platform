@@ -58,7 +58,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
       return;
     }
 
-    if (!expectedCount || isNaN(Number(expectedCount)) || Number(expectedCount) <= 0) {
+    if (!expectedCount || isNaN(Number(expectedCount)) || Number(expectedCount) < 0) {
       setError('Please enter a valid expected count.');
       console.warn('Form submission failed: Invalid expected count.');
       return;
