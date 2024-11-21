@@ -8,31 +8,31 @@ const TeamPage: React.FC = () => {
     {
       name: 'Grant McNatt',
       url: 'https://www.linkedin.com/in/grant-mcnatt/',
-      role: 'Full Stack Developer',
+      role: 'Lead Developer',
       imageUrl: '/images/team/grant-pfp.jpg',
     },
     {
       name: 'Chance French',
       url: 'https://www.linkedin.com/in/chance-french/',
-      role: 'ML Engineer',
+      role: 'QA Engineer',
       imageUrl: '/images/team/chance-pfp.jpg',
     },
     {
       name: 'Andrew Riggan',
       url: 'https://www.linkedin.com/in/andrew-riggan-78335a24a/',
-      role: 'Backend Developer',
+      role: 'Project Manager',
       imageUrl: '/images/team/andrew-pfp.jpg',
     },
     {
       name: 'Harrison Pham',
       url: 'https://www.linkedin.com/in/harrison2204/',
-      role: 'Frontend Developer',
+      role: 'Data Analyst',
       imageUrl: '/images/team/harrison-pfp.jpg',
     },
     {
       name: 'Justin Liao',
       url: 'https://www.linkedin.com/in/justinliao/',
-      role: 'UI/UX Designer',
+      role: 'Regulatory Affairs Specialist',
       imageUrl: '/images/team/justin-pfp.jpg',
     },
   ];
