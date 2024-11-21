@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { useDropzone, Accept } from 'react-dropzone';
+import { useDropzone, FileRejection } from 'react-dropzone';
 
 interface UploadFormProps {
   onResult: (result: any) => void;
@@ -12,37 +12,58 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
+  useEffect(() => {
+    console.log('UploadForm rendered');
+  }, []);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
       setImage(acceptedFiles[0]);
       setError('');
+      console.log('Image selected:', acceptedFiles[0].name);
     }
-  };
+  }, []);
+
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
+    if (fileRejections.length > 0) {
+      const rejection = fileRejections[0];
+      const message = rejection.errors.map(e => e.message).join(', ');
+      setError(`File rejection: ${message}`);
+      console.warn('File rejected:', rejection);
+    }
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png'],
-    } as Accept,
+    onDropRejected,
+    accept: 'image/jpeg, image/png, image/heic, image/heif', // Changed to string format
     multiple: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submission initiated.');
+
+    if (loading) {
+      console.log('Form is already submitting.');
+      return;
+    }
 
     if (!image) {
       setError('Please upload an image.');
+      console.warn('Form submission failed: No image uploaded.');
       return;
     }
 
     if (!expectedCount || isNaN(Number(expectedCount)) || Number(expectedCount) <= 0) {
       setError('Please enter a valid expected count.');
+      console.warn('Form submission failed: Invalid expected count.');
       return;
     }
 
     setError('');
     setLoading(true);
+    console.log('Submitting data:', { image: image.name, expectedCount });
 
     try {
       const formData = new FormData();
@@ -55,14 +76,16 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
         },
       });
 
+      console.log('API response received:', response.data);
       onResult(response.data);
     } catch (err: any) {
       setError(
         err.response?.data?.error || 'An error occurred while processing the image.'
       );
-      console.error(err);
+      console.error('Error during API call:', err);
     } finally {
       setLoading(false);
+      console.log('Loading state set to false.');
     }
   };
 
@@ -70,7 +93,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
     setImage(null);
     setExpectedCount('');
     setError('');
-    onResult(null);
+    console.log('Form cleared.');
   };
 
   return (
@@ -84,22 +107,19 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
         </h2>
 
         {/* File Input Label */}
-        <label htmlFor="file-upload" className="w-full">
-          {/* Drag and Drop Area */}
-          <div
-            {...getRootProps()}
-            className={`w-full p-4 border-2 border-dashed rounded-md cursor-pointer mb-4 ${
-              isDragActive ? 'border-blue-500' : 'border-gray-300'
-            }`}
-          >
-            <input {...getInputProps()} id="file-upload" />
-            {isDragActive ? (
-              <p className="text-blue-500">Drop the image here...</p>
-            ) : (
-              <p>Drag & drop an image here, or click to select one</p>
-            )}
-          </div>
-        </label>
+        <div
+          {...getRootProps()}
+          className={`w-full p-4 border-2 border-dashed rounded-md cursor-pointer mb-4 ${
+            isDragActive ? 'border-blue-500' : 'border-gray-300'
+          }`}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p className="text-blue-500">Drop the image here...</p>
+          ) : (
+            <p>Drag & drop an image here, or click to select one</p>
+          )}
+        </div>
 
         {/* Display Selected File */}
         {image && (

@@ -22,14 +22,9 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
   const [downloadError, setDownloadError] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  /**
-   * Handles the download of the processed image.
-   */
   const handleDownload = () => {
     try {
       const link = document.createElement('a');
-
-      // **Use the processedImageBase64 directly without adding the prefix again**
       link.href = processedImageBase64;
       link.download = `processed-image-${Date.now()}.jpg`;
       document.body.appendChild(link);
@@ -41,9 +36,6 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
     }
   };
 
-  /**
-   * Handles the approval process by sending data to the backend.
-   */
   const handleApprove = async () => {
     setLoading(true);
     setError('');
@@ -83,16 +75,14 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
       <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
         Processed Results
       </h2>
-      
-      {/* Image Comparison Section */}
+
       <div className="mb-8 relative aspect-[4/3] w-full">
         <ImageSlider
-          beforeImage={originalImageBase64} // **Use directly**
-          afterImage={processedImageBase64}   // **Use directly**
+          beforeImage={originalImageBase64}
+          afterImage={processedImageBase64}
         />
       </div>
 
-      {/* Results Details Section */}
       <div className="max-w-2xl mx-auto">
         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6">
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
@@ -115,38 +105,36 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <button
-          onClick={handleDownload}
-          className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex-1"
-        >
-          Download Processed Image
-        </button>
-        <button
-          onClick={handleApprove}
-          disabled={loading}
-          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 flex-1 disabled:opacity-50"
-        >
-          {loading ? 'Saving...' : 'Approve'}
-        </button>
-        <button
-          onClick={onClear}
-          className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex-1"
-        >
-          Clear Results
-        </button>
-      </div>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <button
+            onClick={handleDownload}
+            className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex-1 disabled:opacity-50"
+          >
+            Download Processed Image
+          </button>
+          <button
+            onClick={handleApprove}
+            disabled={loading}
+            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 flex-1 disabled:opacity-50"
+          >
+            {loading ? 'Saving...' : 'Approve'}
+          </button>
+          <button
+            onClick={onClear}
+            className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex-1"
+          >
+            Clear Results
+          </button>
+        </div>
 
-      {/* Error Messages */}
-      {downloadError && (
-        <p className="text-red-500 mt-4">Failed to download the image.</p>
-      )}
-      {error && (
-        <p className="text-red-500 mt-4">{error}</p>
-      )}
+        {downloadError && (
+          <p className="text-red-500 mt-4">Failed to download the image.</p>
+        )}
+        {error && (
+          <p className="text-red-500 mt-4">{error}</p>
+        )}
+      </div>
     </div>
   );
 };

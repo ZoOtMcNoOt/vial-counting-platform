@@ -9,6 +9,7 @@ import os from 'os';
 import type { Result } from '../../types';
 import heicConvert from 'heic-convert';
 import axios from 'axios';
+import { supabaseServer } from '../../lib/supabaseClient';
 
 // Disable Next.js default body parsing
 export const config = {
@@ -19,7 +20,12 @@ export const config = {
   },
 };
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/heic',
+  'image/heif',
+];
 
 const parseForm = async (req: NextApiRequest) => {
   const uploadDir = os.tmpdir();
@@ -72,6 +78,37 @@ const convertToOptimalFormat = async (buffer: Buffer, mimeType: string): Promise
     .toBuffer();
 };
 
+const uploadToSupabase = async (
+  bucket: string,
+  buffer: Buffer,
+  filename: string,
+  mimeType: string,
+  expiresIn: number = 60 * 60 // 1 hour
+): Promise<string | null> => {
+  const { data, error } = await supabaseServer.storage
+    .from(bucket)
+    .upload(filename, buffer, {
+      contentType: mimeType,
+      upsert: false,
+    });
+
+  if (error || !data) {
+    console.error(`Supabase upload error for ${bucket}/${filename}:`, error);
+    return null;
+  }
+
+  const { data: signedData, error: signedError } = await supabaseServer.storage
+    .from(bucket)
+    .createSignedUrl(data.path, expiresIn);
+
+  if (signedError || !signedData?.signedUrl) {
+    console.error(`Signed URL error for ${bucket}/${filename}:`, signedError);
+    return null;
+  }
+
+  return signedData.signedUrl;
+};
+
 /**
  * Processes the uploaded image (e.g., converts to grayscale) and returns Base64.
  * @param filePath - The local file path of the image.
@@ -83,7 +120,7 @@ const processImage = async (
   expectedCount: number
 ): Promise<{
   counted_vials: number;
-  percentage: string;
+  percentage: number;
   originalImageBase64: string;
   processedImageBase64: string;
 }> => {
@@ -118,17 +155,17 @@ const processImage = async (
   }
 
   const counted_vials = response.data.predictions?.length || 0;
-  const percentage = ((counted_vials / expectedCount) * 100).toFixed(2);
+  const percentage = parseFloat(((counted_vials / expectedCount) * 100).toFixed(2));
 
   // Add data URI prefix to base64 strings for proper image display
-  const formattedOriginal = `data:image/jpeg;base64,${base64Image}`;
-  const formattedProcessed = `data:image/jpeg;base64,${response.data.visualization || base64Image}`;
+  const originalImageBase64 = `data:image/jpeg;base64,${base64Image}`;
+  const processedImageBase64 = `data:image/jpeg;base64,${response.data.visualization || base64Image}`;
 
   return {
     counted_vials,
     percentage,
-    originalImageBase64: formattedOriginal,
-    processedImageBase64: formattedProcessed
+    originalImageBase64,
+    processedImageBase64,
   };
 };
 
@@ -225,7 +262,7 @@ export default async function handler(
 
     if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
       console.warn('Unsupported image format');
-      return res.status(400).json({ error: 'Only JPEG and PNG images are allowed.' });
+      return res.status(400).json({ error: 'Only JPEG, PNG, HEIC, and HEIF images are allowed.' });
     }
 
     // Process the image
@@ -243,7 +280,7 @@ export default async function handler(
       original_image_base64: originalImageBase64,
       processed_image_base64: processedImageBase64,
       counted_vials,
-      percentage: parseFloat(percentage),
+      percentage,
     });
 
   } catch (error: any) {

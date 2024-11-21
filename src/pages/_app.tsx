@@ -1,3 +1,4 @@
+import React from 'react';
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -9,17 +10,15 @@ const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Head>
         <link rel="icon" href="/images/favicon/favicon.webp" type="image/webp" />
       </Head>
       <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <Component {...pageProps} />
-        </QueryClientProvider>
+        <Component {...pageProps} />
       </ThemeProvider>
       <SpeedInsights/>
-    </>
+    </QueryClientProvider>
   );
 }
 
