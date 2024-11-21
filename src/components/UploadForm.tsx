@@ -144,7 +144,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           {isDragActive ? (
             <p className="text-center text-blue-500">Drop the image here...</p>
           ) : (
-            <p className="text-center text-gray-700">
+            <p className="text-center text-gray-700 dark:text-white">
               Drag & drop an image here, or click to select an image
             </p>
           )}
@@ -162,7 +162,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           <div className="flex mb-4">
             {/* Expected Count */}
             <div className="w-1/2 pr-2">
-              <label htmlFor="expectedCount" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="expectedCount" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Expected Count
               </label>
               <input
@@ -178,7 +178,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
 
             {/* Tray Number */}
             <div className="w-1/2 pl-2">
-              <label htmlFor="trayNumber" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="trayNumber" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Tray Number
               </label>
               <input
@@ -196,7 +196,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           <div className="flex mb-4">
             {/* Order Number */}
             <div className="w-1/2 pr-2">
-              <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Order Number
               </label>
               <input
@@ -212,7 +212,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
 
             {/* Lot ID */}
             <div className="w-1/2 pl-2">
-              <label htmlFor="lotId" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="lotId" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Lot ID
               </label>
               <input
