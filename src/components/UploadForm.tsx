@@ -172,7 +172,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 onChange={(e) => setExpectedCount(e.target.value)}
                 required
                 placeholder=" Ex: 210"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-gray-700 dark:text-black"
               />
             </div>
 
@@ -188,7 +188,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 onChange={(e) => setTrayNumber(e.target.value)}
                 required
                 placeholder=" Ex: 2"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-gray-700 dark:text-black"
               />
             </div>
           </div>
@@ -206,7 +206,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 onChange={(e) => setOrderNumber(e.target.value)}
                 required
                 placeholder=" Ex: 11887799"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-gray-700 dark:text-black"
               />
             </div>
 
@@ -221,8 +221,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
                 value={lotId}
                 onChange={(e) => setLotId(e.target.value)}
                 required
-                placeholder=" Ex: D772369"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm"
+                placeholder=" Ex: D125152"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm text-gray-700 dark:text-black"
               />
             </div>
           </div>
