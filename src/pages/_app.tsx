@@ -19,8 +19,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </ThemeProvider>
       <SpeedInsights/>
+      <Analytics/>
     </QueryClientProvider>
-    <Analytics/>
+    
   );
 }
 
