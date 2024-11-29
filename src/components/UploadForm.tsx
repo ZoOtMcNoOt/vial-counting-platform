@@ -139,7 +139,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           Upload Tray Image
         </h2>
 
-        {/* File Input Label */}
         <div
           {...getRootProps()}
           className={`w-full p-4 border-2 border-dashed rounded-md cursor-pointer mb-4 ${
@@ -156,14 +155,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           )}
         </div>
 
-        {/* File Name Display */}
         {image && (
           <div className="w-full mb-4">
             <p className="text-gray-700">Selected File: {image.name}</p>
           </div>
         )}
 
-        {/* Form Fields */}
         <div className="w-full">
           <div className="flex mb-4">
             {/* Expected Count */}
@@ -182,7 +179,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
               />
             </div>
 
-            {/* Tray Number */}
             <div className="w-1/2 pl-2">
               <label htmlFor="trayNumber" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Tray Number
@@ -200,7 +196,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           </div>
 
           <div className="flex mb-4">
-            {/* Order Number */}
             <div className="w-1/2 pr-2">
               <label htmlFor="orderNumber" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Order Number
@@ -216,7 +211,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
               />
             </div>
 
-            {/* Lot ID */}
             <div className="w-1/2 pl-2">
               <label htmlFor="lotId" className="block text-sm font-medium text-gray-700 dark:text-white">
                 Lot ID
@@ -234,7 +228,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           </div>
         </div>
 
-        {/* Submit and Clear buttons */}
         <div className="flex items-center justify-between w-full">
           <button
             type="submit"
@@ -251,7 +244,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onResult }) => {
           </button>
         </div>
 
-        {/* Error Message */}
         {error && (
           <p className="mt-4 text-red-500 text-sm">
             {error}

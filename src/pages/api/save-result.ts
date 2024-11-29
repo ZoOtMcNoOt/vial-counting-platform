@@ -3,11 +3,10 @@ import { supabaseServer } from '../../lib/supabaseClient'; // Ensure this is cor
 import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
 
-// API Configuration: Increase the body size limit to handle large payloads if necessary
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb', // Adjust as needed
+      sizeLimit: '10mb',
     },
   },
 };
@@ -34,7 +33,6 @@ const uploadToSupabase = async (
   mimeType: string,
   expiresIn: number = 60 * 60 // 1 hour
 ): Promise<string | null> => {
-  // Upload the file to Supabase Storage
   const { data, error } = await supabaseServer.storage
     .from(bucket)
     .upload(filename, buffer, {
@@ -47,7 +45,6 @@ const uploadToSupabase = async (
     return null;
   }
 
-  // Generate a signed URL for accessing the uploaded file
   const { data: signedData, error: signedError } = await supabaseServer.storage
     .from(bucket)
     .createSignedUrl(data.path, expiresIn);
@@ -111,7 +108,6 @@ export default async function handler(
       return res.status(400).json({ error: 'Missing required fields.' });
     }
 
-    // Validate Content-Length to prevent oversized uploads
     const contentLength = parseInt(req.headers['content-length'] || '0');
     if (contentLength > 10 * 1024 * 1024) { // 10MB in bytes
       return res.status(413).json({
@@ -119,7 +115,6 @@ export default async function handler(
       });
     }
 
-    // Convert Base64 Data URLs to Buffers
     let originalBuffer: Buffer;
     let processedBuffer: Buffer;
     try {
@@ -130,16 +125,13 @@ export default async function handler(
       return res.status(400).json({ error: 'Invalid image data format.' });
     }
 
-    // Determine MIME type (assuming JPEG; adjust if necessary)
     const mimeType = 'image/jpeg';
 
-    // Generate unique filenames using UUID to prevent collisions
     const originalFilename = `original-${uuidv4()}.jpg`;
     const processedFilename = `processed-${uuidv4()}.jpg`;
 
-    // Upload images to Supabase Storage
     const originalImageUrl = await uploadToSupabase(
-      'before-images', // Ensure this bucket exists in Supabase
+      'before-images', 
       originalBuffer,
       originalFilename,
       mimeType
@@ -166,7 +158,7 @@ export default async function handler(
         lot_id: lot_id,
         order_number: order_number,
         tray_number: tray_number,
-        approved: true, // Ensure your 'results' table has an 'approved' column
+        approved: true,
       },
     ]).select();
 

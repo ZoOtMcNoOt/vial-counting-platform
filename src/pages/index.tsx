@@ -7,7 +7,7 @@ const Home: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Home - Vial Counting Platform</title>
+        <title>Home - VialCount Pro</title>
         <meta name="description" content="Welcome to the Vial Counting Platform." />
       </Head>
       <HowToUse />

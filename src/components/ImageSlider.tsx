@@ -48,11 +48,9 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ beforeImage, afterImage, clas
         }
         portrait={false}
       />
-      {/* Before Caption */}
       <div className="absolute top-2 left-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm pointer-events-none z-10">
         Original
       </div>
-      {/* After Caption */}
       <div className="absolute top-2 right-2 bg-black bg-opacity-50 px-2 py-1 rounded text-white text-sm pointer-events-none z-10">
         Tagged
       </div>

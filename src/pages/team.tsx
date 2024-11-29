@@ -40,11 +40,10 @@ const TeamPage: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Team - Vial Counting Platform</title>
+        <title>Team VialCount Pro</title>
         <meta name="description" content="Meet our team of developers" />
       </Head>
 
-      {/* Header Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">Our Team</h1>
@@ -53,7 +52,6 @@ const TeamPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {teamMembers.map((member) => (
             <a
@@ -65,7 +63,6 @@ const TeamPage: React.FC = () => {
                        hover:shadow-lg transition-all duration-200 hover:scale-102 hover:bg-gray-50 
                        dark:hover:bg-gray-700"
             >
-              {/* Profile Image */}
               <div className="relative w-24 h-24 sm:w-32 sm:h-32 mb-4 rounded-full overflow-hidden 
                           group-hover:ring-4 ring-blue-500 ring-opacity-50 transition-all duration-200">
                 <Image
@@ -77,7 +74,6 @@ const TeamPage: React.FC = () => {
                 />
               </div>
 
-              {/* Member Info */}
               <div className="text-center">
                 <h2 className="text-lg sm:text-xl font-semibold mb-2 group-hover:text-blue-600 
                            dark:group-hover:text-blue-400 transition-colors duration-200">

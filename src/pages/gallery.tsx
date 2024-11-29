@@ -7,11 +7,10 @@ const Gallery: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Gallery - Vial Counting Platform</title>
+        <title>Gallery - VialCount Pro</title>
         <meta name="description" content="View all processed tray images and results." />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
-      
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         <div className="text-center sm:text-left mb-8 sm:mb-12">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold 

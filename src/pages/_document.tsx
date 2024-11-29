@@ -26,7 +26,6 @@ class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
-          {/* Inject the script to set the initial theme */}
           <script dangerouslySetInnerHTML={{ __html: setInitialTheme }} />
         </Head>
         <body>

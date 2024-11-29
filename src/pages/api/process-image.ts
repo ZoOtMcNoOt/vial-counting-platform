@@ -247,7 +247,6 @@ export default async function handler(
 
     console.log(`Uploaded image file: ${image.originalFilename}`);
 
-    // Ensure the image file exists
     try {
       await fs.access(image.filepath);
     } catch {
@@ -255,7 +254,6 @@ export default async function handler(
       return res.status(400).json({ error: 'Uploaded image does not exist' });
     }
 
-    // Restrict to JPEG and PNG formats
     const mimeType = mime.lookup(image.filepath) || '';
 
     console.log(`MIME type of uploaded file: ${mimeType}`);
@@ -315,17 +313,14 @@ export default async function handler(
       return res.status(400).json({ error: 'Missing Tray Number' });
     }
 
-    // Process the image
     const { counted_vials, percentage, originalImageBase64, processedImageBase64 } = await processImage(
       image.filepath,
       expectedCount
     );
 
-    // Delete the temporary file
     await deleteFile(image.filepath);
     console.log('Temporary files cleaned up.');
 
-    // Return the processed results to the frontend for approval
     res.status(200).json({
       original_image_base64: originalImageBase64,
       processed_image_base64: processedImageBase64,

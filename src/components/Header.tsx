@@ -14,12 +14,10 @@ const navLinks: NavLink[] = [
   { name: 'Upload', path: '/upload' },
   { name: 'Gallery', path: '/gallery' },
   { name: 'Team', path: '/team' },
-  // Add more links as needed
 ];
 
 const DarkModeToggle: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useContext(ThemeContext);
-
   return (
     <button
       onClick={toggleDarkMode}
@@ -45,11 +43,9 @@ const Header: React.FC = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const handleToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
-
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -58,8 +54,6 @@ const Header: React.FC = () => {
     };
 
     window.addEventListener('resize', handleResize);
-
-    // Initial check
     handleResize();
 
     return () => {
@@ -71,12 +65,9 @@ const Header: React.FC = () => {
     <header className="fixed top-0 left-0 w-screen bg-red-600 dark:bg-gray-800 shadow z-50 h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex justify-between items-center h-full">
-          {/* Logo and Title */}
           <div className="flex-shrink-0 flex items-center">
-            <h1 className="text-white dark:text-gray-200 font-bold text-2xl">VialGuard Pro</h1>
+            <h1 className="text-white dark:text-gray-200 font-bold text-2xl">VialCount Pro</h1>
           </div>
-
-          {/* Navigation Links (Hidden on Mobile) */}
           <div className="hidden md:flex space-x-4 items-center">
             {navLinks.map((link) => (
               <Link
@@ -92,13 +83,8 @@ const Header: React.FC = () => {
               </Link>
             ))}
           </div>
-
-          {/* Toggle and Mobile Menu Button */}
           <div className="flex items-center space-x-2">
-            {/* Dark Mode Toggle */}
             <DarkModeToggle />
-
-            {/* Mobile Menu Button */}
             <button
               onClick={handleToggle}
               className="md:hidden p-2 rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300"
@@ -121,7 +107,6 @@ const Header: React.FC = () => {
                   />
                 </svg>
               ) : (
-                // Hamburger Icon
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"
@@ -143,6 +128,7 @@ const Header: React.FC = () => {
       </div>
 
       {/* Mobile Menu Dropdown */}
+
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800">
           <nav className="px-2 pt-2 pb-3 space-y-1 sm:px-3">

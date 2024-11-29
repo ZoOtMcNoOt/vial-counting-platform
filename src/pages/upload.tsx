@@ -24,7 +24,7 @@ const Upload: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>Upload - Vial Counting Platform</title>
+        <title>Upload - VialCount Pro</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 

@@ -5,7 +5,7 @@ const HowToUse: React.FC = () => {
   return (
     <section className="w-full max-w-5xl mx-auto my-12 px-4 sm:px-6 lg:px-8">
       <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
-        How to Use VialGuard Pro
+        How to Use VialCount Pro
       </h2>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <ol className="list-decimal list-inside space-y-4 text-gray-700 dark:text-gray-300">

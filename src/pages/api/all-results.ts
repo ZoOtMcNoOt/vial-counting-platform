@@ -11,7 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const limit = Number(req.query.limit) || 9;
 
   try {
-    // Get database results first
     const { data, error, count } = await supabaseServer
       .from('results')
       .select('*', { count: 'exact' })
@@ -23,7 +22,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ results: [], count: 0 });
     }
 
-    // Generate signed URLs
     const resultsWithUrls = await Promise.all(
       data.map(async (result) => {
         try {
@@ -35,8 +33,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
           const originalFilename = getFilename(result.original_image_url);
           const processedFilename = getFilename(result.processed_image_url);
-
-          // Create new signed URLs
           const [originalUrlResponse, processedUrlResponse] = await Promise.all([
             supabaseServer.storage
               .from('before-images')
